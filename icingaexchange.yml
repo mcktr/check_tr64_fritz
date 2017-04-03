@@ -1,0 +1,18 @@
+name: check_tr64_fritz
+description: "file:///README.md"
+url: "https://github.com/mcktr/check_tr64_fritz"
+tags: Plugin, AVM, TR-064
+vendor: Linux, AVM
+target: Network, TR-064
+type: Plugin
+license: gplv2
+releases: 
+  - 
+    name: 1.0
+    description: "1.0 Release"
+    files: 
+      - 
+        name: check_tr64_fritz
+        url: "file:///check_tr64_fritz"
+        description: "First release"
+        checksum: a96985de61bef32c1ceb8142e3c4c5e9

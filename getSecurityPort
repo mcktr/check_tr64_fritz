@@ -1,0 +1,34 @@
+#!/bin/bash
+
+find_xml_value()
+{
+  xml=$1
+  value=$2
+
+  echo "${xml}" | sed -ne "/<${value}>/s#\s*<[^>]*>\s*##gp"
+}
+
+usage()
+{
+  echo "getSecurityPort <HOST>"
+  echo "  <HOST> = IP of your Fritz!Box"
+}
+
+HOSTNAME=$1
+
+if [ -z ${HOSTNAME} ]; then
+  usage
+  exit 0
+fi
+
+queryResult=$(curl "http://${HOSTNAME}:49000/upnp/control/deviceinfo" \
+-s \
+-H "Content-Type: text/xml; charset='utf-8'" \
+-H "SOAPACTION: urn:dslforum-org:service:DeviceInfo:1#GetSecurityPort" \
+-d "<?xml version='1.0'?> <s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/' s:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'> <s:Body> <u:GetSecurityPort xmlns:u='urn:dslforum-org:service:DeviceInfo:1'> </u:GetSecurityPort> </s:Body> </s:Envelope>")
+
+securityPort=$(find_xml_value "${queryResult}" "NewSecurityPort")
+
+echo "Your Fritz!Box Security Port (for TR-064 over SSL) is: ${securityPort}"
+
+exit 0

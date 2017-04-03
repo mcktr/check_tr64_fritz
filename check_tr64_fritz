@@ -1,0 +1,278 @@
+#!/bin/bash
+
+PLUGIN_OK=0
+PLUGIN_WARNING=1
+PLUGIN_CRITICAL=2
+PLUGIN_ERROR=2
+PLUGIN_UNKNOWN=3
+
+find_xml_value()
+{
+  xml=$1
+  value=$2
+
+  echo "${xml}" | sed -ne "/<${value}>/s#\s*<[^>]*>\s*##gp"
+}
+
+check_number()
+{
+  VAR=$1
+
+  if [[ ! "${VAR}" =~ ^[0-9]+$ ]]; then
+    echo "UNKNOWN - Could not parse output"
+    exit ${PLUGIN_UNKNOWN}
+  fi
+}
+
+check_greater()
+{
+  value=$1
+  warn=$2
+  crit=$3
+  msg=$4
+
+  if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
+    echo "OK - ${msg}"
+    exit ${PLUGIN_OK}
+  elif [ ${value} -gt ${crit} ]; then
+    echo "WARNING - ${msg}"
+    exit ${PLUGIN_WARNING}
+  else
+    echo "CRITICAL - ${msg}"
+    exit ${PLUGIN_CRITICAL}
+  fi
+}
+
+usage()
+{
+  echo "usage: check_tr64_fritz -h <HOSTNAME> -p <PORT> -u <USERNAME> -P <PASSWORD> -f <FUNCTION> -w <WARNING> -c <CRITICAL>"
+  echo ""
+  echo "  -h: IP-Adress or hostname from the Fritz!Box"
+  echo "      default = fritz.box"
+  echo ""
+  echo "  -p: SSL-Port from the Fritz!Box"
+  echo "      default = 49443"
+  echo ""
+  echo "  -u: Login Username for the Fritz!Box"
+  echo "      default = dslf-config"
+  echo ""
+  echo "  -P: Login Password for the Fritz!Box"
+  echo ""
+  echo "  -f: Function to check"
+  echo ""
+  echo "  -w: value where the warning state come into effect"
+  echo "      default = -1 / returns every time an OK state"
+  echo ""
+  echo "  -c: value where the critical state come into effect"
+  echo "      default = -1 / return every time an OK state"
+  echo ""
+  echo "Functions:"
+  echo ""
+  echo "  status = Connection Status"
+  echo ""
+  echo "  linkuptime = WAN link uptime"
+  echo ""
+  echo "  uptime = device uptime"
+  echo ""
+  echo "  downstream = useable downstream rate"
+  echo "               output in Mbit/s"
+  echo ""
+  echo "  upstream = useable upstream rate"
+  echo "             output in Mbit/s"
+  echo ""
+  echo "  update = get the update state"
+  echo ""
+  echo "DEBUG"
+  echo ""
+  echo "  -d: prints debug information"
+  exit ${PLUGIN_UNKNOWN}
+}
+
+HOSTNAME="fritz.box"
+PORT="49443"
+USERNAME="dslf-config"
+FUNCTION="status"
+WARN=-1
+CRIT=-1
+DEBUG=0
+
+while getopts h:p:u:P:f:w:c:d OPTNAME; do
+  case "${OPTNAME}" in
+  h)
+    HOSTNAME="${OPTARG}"
+    ;;
+  p)
+    PORT="${OPTARG}"
+    ;;
+  u)
+    USERNAME="${OPTARG}"
+    ;;
+  P)
+    PASSWORD="${OPTARG}"
+    ;;
+  f)
+    FUNCTION="${OPTARG}"
+    ;;
+  w)
+    WARN="${OPTARG}"
+    ;;
+  c)
+    CRIT="${OPTARG}"
+    ;;
+  d)
+    DEBUG=1
+    ;;
+  *)
+    usage
+    ;;
+  esac
+done
+
+case ${FUNCTION} in
+  "status" | "linkuptime")
+    url='wanpppconn1'
+    service='WANPPPConnection'
+    action='GetInfo'
+    ;;
+  "downstream" | "upstream")
+    url='wancommonifconfig1'
+    service='WANCommonInterfaceConfig'
+    action='X_AVM-DE_GetOnlineMonitor'
+    xmlVar='<NewSyncGroupIndex>0</NewSyncGroupIndex>'
+    ;;
+  "update")
+    url='userif'
+    service='UserInterface'
+    action='GetInfo'
+    ;;
+  "uptime")
+    url='deviceinfo'
+    service='DeviceInfo'
+    action='GetInfo'
+esac
+
+queryResult=$(curl "https://${HOSTNAME}:${PORT}/upnp/control/${url}" \
+-k \
+-s \
+-u ${USERNAME}:${PASSWORD} \
+--anyauth \
+-H "Content-Type: text/xml; charset='utf-8'" \
+-H "SOAPACTION: urn:dslforum-org:service:${service}:1#${action}" \
+-d "<?xml version='1.0'?> <s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/' s:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'> <s:Body> <u:${action} xmlns:u='urn:dslforum-org:service:${service}:1'> ${xmlVar} </u:${action}> </s:Body> </s:Envelope>"
+)
+
+if [[ "${queryResult}" == *"401 Unauthorized"* ]]; then
+  echo "ERROR - Wrong Password"
+  exit ${PLUGIN_ERROR}
+fi
+
+if [ ${DEBUG} -eq 1 ]; then
+  echo "${queryResult}"
+fi
+
+case ${FUNCTION} in
+  "status")
+    STATUS=$(find_xml_value "${queryResult}" "NewConnectionStatus")
+
+    if [ -z "${STATUS}" ]; then
+      echo "UNKNOWN - Could not get a response"
+      exit ${PLUGIN_UNKNOWN}
+    fi
+
+    case ${STATUS} in
+      "Connected")
+        echo "OK - ${STATUS}"
+        exit ${PLUGIN_OK}
+        ;;
+      "Connecting" | "Authenticating")
+        echo "WARNING - ${STATUS}"
+        exit ${PLUGIN_WARNING}
+        ;;
+      *)
+        echo "ERROR - ${STATUS}"
+        exit ${PLUGIN_ERROR}
+        ;;
+    esac
+    ;;
+  "linkuptime")
+    UPTIME=$(find_xml_value "${queryResult}" "NewUptime")
+
+    check_number "${UPTIME}"
+
+    days=$(( ${UPTIME} / 86400 ))
+    hours=$(( (${UPTIME} / 3600) - (${days} * 24) ))
+    minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
+    seconds=$(( ${UPTIME} % 60 ))
+
+    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s)"
+
+    exit ${PLUGIN_OK}
+
+    ;;
+  "downstream")
+    DS_BYTE=$(find_xml_value "${queryResult}" "Newmax_ds")
+
+    check_number "${DS_BYTE}"
+
+    DOWNSTREAM=$((${DS_BYTE}*8/1000000))
+    MSG="Downstream ${DOWNSTREAM} Mbit/s"
+
+    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}"
+
+    ;;
+  "upstream")
+    US_BYTE=$(find_xml_value "${queryResult}" "Newmax_us")
+
+    check_number "${US_BYTE}"
+
+    UPSTREAM=$((${US_BYTE}*8/1000000))
+    MSG="Upstream ${UPSTREAM} Mbit/s"
+
+    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}"
+
+    ;;
+  "update")
+    UPDATE=$(find_xml_value "${queryResult}" "NewX_AVM-DE_UpdateState")
+
+    case ${UPDATE} in
+      "NoUpdate")
+        echo "OK - Update State: ${UPDATE}"
+
+        exit ${PLUGIN_OK}
+
+        ;;
+      "UpdateAvailable" | "Started" | "Stopped")
+        echo "WARNING - Update State: ${UPDATE}"
+
+        exit ${PLUGIN_WARNING}
+
+        ;;
+      "Error" | "Unknown")
+        echo "CRITICAL - Update State: ${UPDATE}"
+
+        exit ${PLUGIN_CRITICAL}
+
+        ;;
+    esac
+
+    ;;
+  "uptime")
+    UPTIME=$(find_xml_value "${queryResult}" "NewUpTime")
+
+    check_number "${UPTIME}"
+
+    days=$(( ${UPTIME} / 86400 ))
+    hours=$(( (${UPTIME} / 3600) - (${days} * 24) ))
+    minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
+    seconds=$(( ${UPTIME} % 60 ))
+
+    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s)"
+
+    exit ${PLUGIN_OK}
+
+    ;;
+  *)
+    echo "UNKNOWN - Unknown function"
+    exit ${PLUGIN_UNKNOWN}
+    ;;
+esac
