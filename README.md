@@ -65,7 +65,7 @@ Functions:
 
   update = get the update state
 
-DEBUG
+DEBUG:
 
   -d: prints debug information
 ```
@@ -81,32 +81,7 @@ Make sure you are hiding password variables in Icinga Web 2.
 
 1. login to your Icinga Web 2
 2. go to `Configuration` -> `Modules` -> `monitoring` -> `Security`
-3. make sure your custom password varibale is protected (defaults are `*pw*,*pass*,community`, if you named your custom variable `fritzbox_passwor$
-
-## Changelog
-2017-04-03
-* release on Icinga Exchange
-
-2017-04-01
-* allowed to set no password
-* refactored function `uptime` to device uptime
-* added function `linkuptime` to check WAN link uptime
-
-2017-03-30:
-* refactored function `upstream`
-* refactored function `downstream`
-* added warning and critical state check
-* added setable warning and critical arguments
-* added a script to find out the ssl port for TR-064
-* added function update
-* minor bug fixes
-
-2017-03-26: 
-* first commit
-* added function `uptime`
-* added function `downstream`
-* added function `upstream`
-* added usage output
+3. make sure your custom password varibale is protected (defaults are `*pw*,*pass*,community`, if you named your custom variable `fritzbox_password` it will be protected with the defaults
 
 ## Hats off to
 
