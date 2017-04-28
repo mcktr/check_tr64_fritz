@@ -134,7 +134,7 @@ case ${FUNCTION} in
     service='WANPPPConnection'
     action='GetInfo'
     ;;
-  "downstream" | "upstream")
+  "downstreamrate" | "upstreamrate" | "downsteam" | "upsteam")
     url='wancommonifconfig1'
     service='WANCommonInterfaceConfig'
     action='X_AVM-DE_GetOnlineMonitor'
@@ -205,6 +205,26 @@ case ${FUNCTION} in
     seconds=$(( ${UPTIME} % 60 ))
 
     echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s)"
+
+    exit ${PLUGIN_OK}
+
+    ;;
+  "downstreamrate")
+    LIST_DS_BYTE=$(find_xml_value "${queryResult}" "Newds_current_bps")
+
+    curr_ds_byte=$(echo "${LIST_DS_BYTE}" | cut -d ',' -f 1)
+
+    echo "${curr_ds_byte}"
+
+    exit ${PLUGIN_Ok}
+
+    ;;
+  "upstreamrate")
+    LIST_US_BYTE=$(find_xml_value "${queryResult}" "Newus_current_bps")
+
+    curr_us_byte=$(echo "${LIST_US_BYTE}" | cut -d ',' -f 1)
+
+    echo "${curr_us_byte}"
 
     exit ${PLUGIN_OK}
 
