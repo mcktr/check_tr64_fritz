@@ -134,7 +134,7 @@ case ${FUNCTION} in
     service='WANPPPConnection'
     action='GetInfo'
     ;;
-  "downstreamrate" | "upstreamrate" | "downsteam" | "upsteam")
+  "downstreamrate" | "upstreamrate" | "downstream" | "upstream")
     url='wancommonifconfig1'
     service='WANCommonInterfaceConfig'
     action='X_AVM-DE_GetOnlineMonitor'
