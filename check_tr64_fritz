@@ -214,7 +214,11 @@ case ${FUNCTION} in
 
     curr_ds_byte=$(echo "${LIST_DS_BYTE}" | cut -d ',' -f 1)
 
-    echo "${curr_ds_byte}"
+    check_number "${curr_ds_byte}"
+
+    ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+
+    echo "OK - Current Downstream ${ds_rate_mbit} Mbit/s"
 
     exit ${PLUGIN_Ok}
 
@@ -224,7 +228,11 @@ case ${FUNCTION} in
 
     curr_us_byte=$(echo "${LIST_US_BYTE}" | cut -d ',' -f 1)
 
-    echo "${curr_us_byte}"
+    check_number "${curr_us_byte}"
+
+    us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+
+    echo "OK - Current Upstream ${us_rate_mbit} Mbit/s"
 
     exit ${PLUGIN_OK}
 
