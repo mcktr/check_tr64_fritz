@@ -63,6 +63,12 @@ Functions:
   upstream = useable upstream rate
              output in Mbit/s
 
+  downstreamrate = current downstream rate
+                   output in Mbit/s
+
+  upstreamrate = current upstream rate
+                 output in Mbit/s
+
   update = get the update state
 
 DEBUG:
