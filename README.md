@@ -4,6 +4,13 @@
 
 This is a monitoring plugin for Icinga 2 to check the status of a Fritz!Box
 
+## Requirements
+
+You need following packages installed to use this check plugin.
+
+- `bc`
+- `curl`
+
 ## Installation
 
 1. clone this Repository to an empty folder 
