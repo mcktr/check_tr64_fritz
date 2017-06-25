@@ -30,15 +30,16 @@ check_greater()
   warn=$2
   crit=$3
   msg=$4
+  perfdata=$5
 
   if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
-    echo "OK - ${msg} | value=${value}"
+    echo "OK - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_OK}
   elif [ ${value} -gt ${crit} ]; then
-    echo "WARNING - ${msg} | value=${value}"
+    echo "WARNING - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_WARNING}
   else
-    echo "CRITICAL - ${msg} | value=${value}"
+    echo "CRITICAL - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_CRITICAL}
   fi
 }
@@ -251,7 +252,7 @@ case ${FUNCTION} in
     DOWNSTREAM=$((${DS_BYTE}*8/1000000))
     MSG="Downstream ${DOWNSTREAM} Mbit/s"
 
-    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}"
+    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
 
     ;;
   "upstream")
@@ -262,7 +263,7 @@ case ${FUNCTION} in
     UPSTREAM=$((${US_BYTE}*8/1000000))
     MSG="Upstream ${UPSTREAM} Mbit/s"
 
-    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}"
+    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
 
     ;;
   "update")
@@ -270,19 +271,19 @@ case ${FUNCTION} in
 
     case ${UPDATE} in
       "NoUpdate")
-        echo "OK - Update State: ${UPDATE} | update_state=${PLUGIN_Ok}"
+        echo "OK - Update State: ${UPDATE} | update_pending=${PLUGIN_OK}"
 
         exit ${PLUGIN_OK}
 
         ;;
       "UpdateAvailable" | "Started" | "Stopped")
-        echo "WARNING - Update State: ${UPDATE} | update_state=${PLUGIN_WARNING}"
+        echo "WARNING - Update State: ${UPDATE} | update_pending=${PLUGIN_WARNING}"
 
         exit ${PLUGIN_WARNING}
 
         ;;
       "Error" | "Unknown")
-        echo "CRITICAL - Update State: ${UPDATE} | update_state=${PLUGIN_CRITICAL}"
+        echo "CRITICAL - Update State: ${UPDATE} | update_pending=${PLUGIN_CRITICAL}"
 
         exit ${PLUGIN_CRITICAL}
 
