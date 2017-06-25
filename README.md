@@ -2,34 +2,36 @@
 
 ![check_tr64_fritz](https://github.com/mcktr/check_tr64_fritz/raw/master/doc/github_doc_fritzbox_services.png)
 
-This is a monitoring plugin for Icinga 2 to check the status of a Fritz!Box
+This is a Check Plugin for Icinga 2 to monitor a Fritz!Box
 
-## Requirements
+### Requirements
 
-You need following packages installed to use this check plugin.
+You need the following packages installed to use this check Plugin
 
-- `bc`
 - `curl`
+- `bc`
 
-## Installation
+Please use your favorite package manager to install them.
 
-1. clone this Repository to an empty folder 
-2. execute the `getSecurityPort` script, to find out your TR-064 SSL port
-3. copy the `check_tr64_fritz` script to your Icinga 2 PluginDir 
-4. write a [CheckCommand Definition](https://docs.icinga.com/icinga2/latest/doc/module/icinga2/chapter/monitoring-basics#check-commands)
-5. create a new service in Icinga for your Fritz!Box and have fun :)
+### Installation
 
-## Usage
+1. Clone this Repository to an empty folder
+2. Execute the `getSecurityPort` script, to find out your TR-064 SSL Port
+3. Copy the check_tr64_fritz script to your Icinga 2 Check Plugin Directory
+4. Write a CheckCommand Definition
+5. Create a new service in Icinga 2 for your Fritz!Box
+
+### Usage
 
 #### getSecurityPort
 
 ```
 getSecurityPort <HOST>
 
-  <HOST> = IP of your Fritz!Box
+  <HOST> = IP-Adress of your Fritz!Box
 ```
 
-The return value is your SSL port for TR-064.
+The returned value is your SSL port for the TR-064 protocol of your Fritz!Box
 
 #### check_tr64_fritz
 
@@ -83,20 +85,15 @@ DEBUG:
   -d: prints debug information
 ```
 
-The username and password are the same as for the web interface of your Fritz!Box. If you don't need a username for the login to your Fritz!Box leave the argument blank.
+The username and password are the same as for the Web-Interface of your Fritz!Box. If you don't use the login method with username and password you can leave the username empty.
 
-## Security
+### Security
 
-In fact that a pasword is transmitted over the network, this Script use SSL to communicate with the Fritz!Box.
-To find out the port which is used for SSL TR-064, please use the script `getSecurityPort`
+Since there are credentials transmitted over the network, this script use SSL to communicate with the Fritz!Box. Therefore you need to find out your SSL port for the TR-064 protocol of your Fritz!Box. For finding out the port you can use the `getSecurityPort` script.
 
 Make sure you are hiding password variables in Icinga Web 2.
 
-1. login to your Icinga Web 2
-2. go to `Configuration` -> `Modules` -> `monitoring` -> `Security`
-3. make sure your custom password varibale is protected (defaults are `*pw*,*pass*,community`, if you named your custom variable `fritzbox_password` it will be protected with the defaults
-
-## Hats off to
-
-This script uses much of [FRITZ!Box mit Nagios überwachen](http://blog.gmeiners.net/2013/09/fritzbox-mit-nagios-uberwachen.html) and of an
-article about [Fritz!Box and TR-064](http://heise.de/-2550500) from the heise publishing house.
+1. Log In to your Icinga Web 2
+2. Go to `Configuration` -> `Modules` -> `monitoring` -> `Security`
+3. Make sure your custom password variable is protected (defaults are `*pw*,*pass*,community`). If you named your custom variable `frtiz_password` it will be protected by the default entry `*pass*`.
+4. Double check it, go  to one of your Fritz!Box service an check if the password is display with ``***``.
