@@ -1,6 +1,6 @@
 # check_tr64_fritz
 
-![check_tr64_fritz](https://github.com/mcktr/check_tr64_fritz/raw/master/doc/github_doc_fritzbox_services.png)
+![check_tr64_fritz](./doc/github_doc_fritzbox_services.png)
 
 This is a Check Plugin for Icinga 2 to monitor a Fritz!Box
 
@@ -97,3 +97,8 @@ Make sure you are hiding password variables in Icinga Web 2.
 2. Go to `Configuration` -> `Modules` -> `monitoring` -> `Security`
 3. Make sure your custom password variable is protected (defaults are `*pw*,*pass*,community`). If you named your custom variable `frtiz_password` it will be protected by the default entry `*pass*`.
 4. Double check it, go  to one of your Fritz!Box service an check if the password is display with ``***``.
+
+### Thanks
+
+- [FRITZ!Box mit Nagios überwachen](http://blog.gmeiners.net/2013/09/fritzbox-mit-nagios-uberwachen.html)
+- [Fritz!Box and TR-064](http://heise.de/-2550500)
