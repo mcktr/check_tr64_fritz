@@ -30,15 +30,16 @@ check_greater()
   warn=$2
   crit=$3
   msg=$4
+  perfdata=$5
 
   if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
-    echo "OK - ${msg}"
+    echo "OK - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_OK}
   elif [ ${value} -gt ${crit} ]; then
-    echo "WARNING - ${msg}"
+    echo "WARNING - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_WARNING}
   else
-    echo "CRITICAL - ${msg}"
+    echo "CRITICAL - ${msg} | ${perfdata}=${value}"
     exit ${PLUGIN_CRITICAL}
   fi
 }
@@ -181,21 +182,21 @@ case ${FUNCTION} in
     STATUS=$(find_xml_value "${queryResult}" "NewConnectionStatus")
 
     if [ -z "${STATUS}" ]; then
-      echo "UNKNOWN - Could not get a response"
+      echo "UNKNOWN - Could not get a response | status=${PLUGIN_UNKNOWN}"
       exit ${PLUGIN_UNKNOWN}
     fi
 
     case ${STATUS} in
       "Connected")
-        echo "OK - ${STATUS}"
+        echo "OK - ${STATUS} | status=${PLUGIN_OK}"
         exit ${PLUGIN_OK}
         ;;
       "Connecting" | "Authenticating")
-        echo "WARNING - ${STATUS}"
+        echo "WARNING - ${STATUS} | status=${PLUGIN_WARNING}"
         exit ${PLUGIN_WARNING}
         ;;
       *)
-        echo "ERROR - ${STATUS}"
+        echo "ERROR - ${STATUS} | status=${PLUGIN_ERROR}"
         exit ${PLUGIN_ERROR}
         ;;
     esac
@@ -210,7 +211,7 @@ case ${FUNCTION} in
     minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
     seconds=$(( ${UPTIME} % 60 ))
 
-    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s)"
+    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}"
 
     exit ${PLUGIN_OK}
 
@@ -224,7 +225,7 @@ case ${FUNCTION} in
 
     ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
 
-    echo "OK - Current Downstream ${ds_rate_mbit} Mbit/s"
+    echo "OK - Current Downstream ${ds_rate_mbit} Mbit/s | current_downstream=${ds_rate_mbit}"
 
     exit ${PLUGIN_Ok}
 
@@ -238,7 +239,7 @@ case ${FUNCTION} in
 
     us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
 
-    echo "OK - Current Upstream ${us_rate_mbit} Mbit/s"
+    echo "OK - Current Upstream ${us_rate_mbit} Mbit/s | current_upstream=${us_rate_mbit}"
 
     exit ${PLUGIN_OK}
 
@@ -251,7 +252,7 @@ case ${FUNCTION} in
     DOWNSTREAM=$((${DS_BYTE}*8/1000000))
     MSG="Downstream ${DOWNSTREAM} Mbit/s"
 
-    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}"
+    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
 
     ;;
   "upstream")
@@ -262,7 +263,7 @@ case ${FUNCTION} in
     UPSTREAM=$((${US_BYTE}*8/1000000))
     MSG="Upstream ${UPSTREAM} Mbit/s"
 
-    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}"
+    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
 
     ;;
   "update")
@@ -270,19 +271,19 @@ case ${FUNCTION} in
 
     case ${UPDATE} in
       "NoUpdate")
-        echo "OK - Update State: ${UPDATE}"
+        echo "OK - Update State: ${UPDATE} | update_pending=${PLUGIN_OK}"
 
         exit ${PLUGIN_OK}
 
         ;;
       "UpdateAvailable" | "Started" | "Stopped")
-        echo "WARNING - Update State: ${UPDATE}"
+        echo "WARNING - Update State: ${UPDATE} | update_pending=${PLUGIN_WARNING}"
 
         exit ${PLUGIN_WARNING}
 
         ;;
       "Error" | "Unknown")
-        echo "CRITICAL - Update State: ${UPDATE}"
+        echo "CRITICAL - Update State: ${UPDATE} | update_pending=${PLUGIN_CRITICAL}"
 
         exit ${PLUGIN_CRITICAL}
 
@@ -300,7 +301,7 @@ case ${FUNCTION} in
     minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
     seconds=$(( ${UPTIME} % 60 ))
 
-    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s)"
+    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}"
 
     exit ${PLUGIN_OK}
 
