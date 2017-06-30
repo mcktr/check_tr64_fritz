@@ -6,16 +6,16 @@ vendor: Linux, AVM
 target: Network, TR-064
 type: Plugin
 license: gplv2
-releases: 
-  - 
-    name: 1.5
-    description: "1.5 Release"
-    files: 
-      - 
+releases:
+  -
+    name: 2.0
+    description: "2.0 Release"
+    files:
+      -
         name: check_tr64_fritz
         url: "file:///check_tr64_fritz"
         description: "Check Pugin for AVM FritzBox, used the TR-064 protocol"
-        checksum: 6af6e2f6b7817034d962ac6b59e7953b
+        checksum: 509bc6316b473d7e0d27e31518f8c6e1
       -
         name: getSecurityPort
         url: "file:///getSecurityPort"
