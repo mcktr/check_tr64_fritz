@@ -1,6 +1,6 @@
 # check_tr64_fritz
 
-![check_tr64_fritz](./doc/github_doc_fritzbox_services.png)
+![check_tr64_fritz](https://raw.githubusercontent.com/mcktr/check_tr64_fritz/master/doc/github_doc_fritzbox_services.png)
 
 This is a Check Plugin for Icinga 2 to monitor a Fritz!Box
 
