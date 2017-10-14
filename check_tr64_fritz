@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="2.1"
+
 PLUGIN_OK=0
 PLUGIN_WARNING=1
 PLUGIN_CRITICAL=2
@@ -44,6 +46,13 @@ check_greater()
   fi
 }
 
+version()
+{
+  echo "check_tr64_fritz"
+  echo "  Version ${VERSION}"
+  echo ""
+}
+
 usage()
 {
   echo "usage: check_tr64_fritz -h <HOSTNAME> -p <PORT> -u <USERNAME> -P <PASSWORD> -f <FUNCTION> -w <WARNING> -c <CRITICAL>"
@@ -66,6 +75,8 @@ usage()
   echo ""
   echo "  -c: value where the critical state come into effect"
   echo "      default = -1 / return every time an OK state"
+  echo ""
+  echo "  -v: print version and usage page"
   echo ""
   echo "Functions:"
   echo ""
@@ -103,7 +114,7 @@ WARN=-1
 CRIT=-1
 DEBUG=0
 
-while getopts h:p:u:P:f:w:c:d OPTNAME; do
+while getopts h:p:u:P:f:w:c:d:v OPTNAME; do
   case "${OPTNAME}" in
   h)
     HOSTNAME="${OPTARG}"
@@ -128,6 +139,10 @@ while getopts h:p:u:P:f:w:c:d OPTNAME; do
     ;;
   d)
     DEBUG=1
+    ;;
+  v)
+    version
+    usage
     ;;
   *)
     usage
