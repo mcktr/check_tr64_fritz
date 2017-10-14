@@ -35,13 +35,13 @@ check_greater()
   perfdata=$5
 
   if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
-    echo "OK - ${msg} | ${perfdata}=${value}"
+    echo "OK - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
     exit ${PLUGIN_OK}
   elif [ ${value} -gt ${crit} ]; then
-    echo "WARNING - ${msg} | ${perfdata}=${value}"
+    echo "WARNING - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
     exit ${PLUGIN_WARNING}
   else
-    echo "CRITICAL - ${msg} | ${perfdata}=${value}"
+    echo "CRITICAL - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
     exit ${PLUGIN_CRITICAL}
   fi
 }
@@ -110,8 +110,8 @@ HOSTNAME="fritz.box"
 PORT="49443"
 USERNAME="dslf-config"
 FUNCTION="status"
-WARN=-1
-CRIT=-1
+WARN=0
+CRIT=0
 DEBUG=0
 
 while getopts h:p:u:P:f:w:c:d:v OPTNAME; do
