@@ -18,8 +18,31 @@ Please use your favorite package manager to install them.
 1. Clone this Repository to an empty folder
 2. Execute the `getSecurityPort` script, to find out your TR-064 SSL Port
 3. Copy the check_tr64_fritz script to your Icinga 2 Check Plugin Directory
-4. Write a CheckCommand Definition
+4. Add the CheckCommand definition to your Icinga 2 configuration. See the [Icinga 2 documentation](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#checkcommand) for more details
 5. Create a new service in Icinga 2 for your Fritz!Box
+
+#### CheckCommand
+
+```
+object CheckCommand "check_tr64_fritz" {
+  command = [ PluginDir + "/check_tr64_fritz" ]
+
+  arguments = {
+    "-h" = "$fritz_host$"
+    "-p" = "$fritz_port$"
+    "-u" = "$fritz_username$"
+    "-P" = "$fritz_password$"
+    "-f" = "$fritz_function$"
+    "-w" = "$fritz_warning$"
+    "-c" = "$fritz_critical$"
+  }
+
+  vars.fritz_host = "$address$"
+  vars.fritz_port = "49443"
+  vars.fritz_username = "dslf-config"
+  vars.fritz_function = "status"
+}
+```
 
 ### Usage
 
