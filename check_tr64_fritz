@@ -35,13 +35,13 @@ check_greater()
   perfdata=$5
 
   if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
-    echo "OK - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
+    echo "OK - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_OK}
   elif [ ${value} -gt ${crit} ]; then
-    echo "WARNING - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
+    echo "WARNING - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_WARNING}
   else
-    echo "CRITICAL - ${msg} | ${perfdata}=${value}, warn=${warn}, crit=${crit}"
+    echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_CRITICAL}
   fi
 }
