@@ -217,16 +217,16 @@ case ${FUNCTION} in
     esac
     ;;
   "linkuptime")
-    UPTIME=$(find_xml_value "${queryResult}" "NewUptime")
+    LINKUPTIME=$(find_xml_value "${queryResult}" "NewUptime")
 
-    check_number "${UPTIME}"
+    check_number "${LINKUPTIME}"
 
-    days=$(( ${UPTIME} / 86400 ))
-    hours=$(( (${UPTIME} / 3600) - (${days} * 24) ))
-    minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
-    seconds=$(( ${UPTIME} % 60 ))
+    days=$(( ${LINKUPTIME} / 86400 ))
+    hours=$(( (${LINKUPTIME} / 3600) - (${days} * 24) ))
+    minutes=$(( (${LINKUPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
+    seconds=$(( ${LINKUPTIME} % 60 ))
 
-    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}"
+    echo "OK - Link Uptime ${LINKUPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | linkuptime=${LINKUPTIME}"
 
     exit ${PLUGIN_OK}
 
