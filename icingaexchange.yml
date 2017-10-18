@@ -8,14 +8,14 @@ type: Plugin
 license: gplv2
 releases:
   -
-    name: 2.0
-    description: "2.0 Release"
+    name: 2.1
+    description: "2.1 Release"
     files:
       -
         name: check_tr64_fritz
         url: "file:///check_tr64_fritz"
         description: "Check Pugin for AVM FritzBox, used the TR-064 protocol"
-        checksum: 509bc6316b473d7e0d27e31518f8c6e1
+        checksum: 57431b196209bbd4f81a96e98310ad3c
       -
         name: getSecurityPort
         url: "file:///getSecurityPort"
