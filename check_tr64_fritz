@@ -114,7 +114,7 @@ WARN=0
 CRIT=0
 DEBUG=0
 
-while getopts h:p:u:P:f:w:c:d:v OPTNAME; do
+while getopts h:p:u:P:f:w:c:dv OPTNAME; do
   case "${OPTNAME}" in
   h)
     HOSTNAME="${OPTARG}"
@@ -171,6 +171,7 @@ case ${FUNCTION} in
     url='deviceinfo'
     service='DeviceInfo'
     action='GetInfo'
+    ;;
 esac
 
 queryResult=$(curl "https://${HOSTNAME}:${PORT}/upnp/control/${url}" \
