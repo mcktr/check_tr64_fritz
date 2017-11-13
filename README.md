@@ -13,6 +13,11 @@ You need the following packages installed to use this check Plugin
 
 Please use your favorite package manager to install them.
 
+The TR-064 feature has to be enabled on the Fritz!Box. You can do that by going to the following menu `Heimnetz` -> `Netzwerk`, switch to the Tab `Netzwerkeinstellungen`. Now you must enable the entry `Zugriff für Anwendungen zulassen`. The Fritz!Box needs a restart and after that the TR-064 feature is enabled.
+
+> If you don't see the entry `Zugriff für Anwendungen zulassen` you must active
+> the advanced view (`Erweiterte Ansicht`).
+
 ### Installation
 
 1. Clone this Repository to an empty folder
