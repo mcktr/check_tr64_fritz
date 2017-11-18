@@ -110,6 +110,12 @@ DEBUG:
 
 The username and password are the same as for the Web-Interface of your Fritz!Box. If you don't use the login method with username and password you can leave the username empty.
 
+Functions that collect data from smart home devices (such as the thermometers)
+dont respond with the live data, e.g. smart home device went offline and you
+will still get an OK response. This is caused by the communication between the
+Fritz!Box and the smart home devices, they exchange data every ~15 minutes,
+therefore the smart home functions can not show the live data. 
+
 ### Security
 
 Since there are credentials transmitted over the network, this script use SSL to communicate with the Fritz!Box. Therefore you need to find out your SSL port for the TR-064 protocol of your Fritz!Box. For finding out the port you can use the `getSecurityPort` script.

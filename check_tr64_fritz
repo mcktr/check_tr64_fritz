@@ -34,17 +34,38 @@ check_greater()
   msg=$4
   perfdata=$5
 
-  if [ ${value} -gt ${warn} ] || [ ${warn} -eq -1 -a ${crit} -eq -1 ]; then
-    echo "OK - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
-    exit ${PLUGIN_OK}
-  elif [ ${value} -gt ${crit} ]; then
+  if (( $(echo "${value} > ${crit}" | bc -l) )); then
+    echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
+    exit ${PLUGIN_CRITICAL}
+  elif (( $(echo "${value} > ${warn}" | bc -l) )); then
     echo "WARNING - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_WARNING}
   else
-    echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
-    exit ${PLUGIN_CRITICAL}
+    echo "OK - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
+    exit ${PLUGIN_OK}
   fi
 }
+
+check_lower()
+{
+  value=$1
+  warn=$2
+  crit=$3
+  msg=$4
+  perfdata=$5
+
+  if (( $(echo "${value} < ${crit}" | bc -l) )); then
+    echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
+    exit ${PLUGIN_CRITICAL}
+  elif (( $(echo "${value} < ${warn}" | bc -l) )); then
+    echo "WARNING - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
+    exit ${PLUGIN_WARNING}
+  else
+    echo "OK - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
+    exit ${PLUGIN_OK}
+  fi
+}
+
 
 version()
 {
@@ -100,6 +121,9 @@ usage()
   echo ""
   echo "  update = get the update state"
   echo ""
+  echo "  thermometer:<INDEX> = Smart Home thermometer status"
+  echo "                        output of the current temperature"
+  echo ""
   echo "DEBUG"
   echo ""
   echo "  -d: prints debug information"
@@ -113,6 +137,7 @@ FUNCTION="status"
 WARN=0
 CRIT=0
 DEBUG=0
+INDEX=0
 
 while getopts h:p:u:P:f:w:c:dv OPTNAME; do
   case "${OPTNAME}" in
@@ -129,7 +154,7 @@ while getopts h:p:u:P:f:w:c:dv OPTNAME; do
     PASSWORD="${OPTARG}"
     ;;
   f)
-    FUNCTION="${OPTARG}"
+    functionAndIndex="${OPTARG}"
     ;;
   w)
     WARN="${OPTARG}"
@@ -149,6 +174,9 @@ while getopts h:p:u:P:f:w:c:dv OPTNAME; do
     ;;
   esac
 done
+
+FUNCTION=$( echo "${functionAndIndex}" | cut -d ':' -f 1 )
+INDEX=$( echo "${functionAndIndex}" | cut -d ':' -f 2 )
 
 case ${FUNCTION} in
   "status" | "linkuptime")
@@ -171,6 +199,12 @@ case ${FUNCTION} in
     url='deviceinfo'
     service='DeviceInfo'
     action='GetInfo'
+    ;;
+  "thermometer")
+    url='x_homeauto'
+    service='X_AVM-DE_Homeauto'
+    action='GetGenericDeviceInfos'
+    xmlVar="<NewIndex>${INDEX}</NewIndex>"
     ;;
 esac
 
@@ -321,6 +355,37 @@ case ${FUNCTION} in
 
     exit ${PLUGIN_OK}
 
+    ;;
+  "thermometer")
+    deviceTempFeature=$(find_xml_value "${queryResult}" "NewTemperatureIsEnabled")
+    deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
+    deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
+    deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
+    devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
+    deviceCurrentTemp=$(find_xml_value "${queryResult}" "NewTemperatureCelsius")
+
+    currentTemp=$( echo "scale=1; ${deviceCurrentTemp}/10" | bc )
+
+    case ${devicePresent} in
+    "CONNECTED")
+      if [ "${deviceTempFeature}" != "ENABLED" ]; then
+        echo "UNKNOWN - Temperature is not enabled on this device | thermometer_current_state=${PLUGIN_UNKNOWN}"
+        exit ${PLUGIN_UNKNOWN}
+      fi
+
+      text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C"
+
+      check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "thermometer_current_state=${PLUGIN_OK} thermometer_current_temp"
+      ;;
+    "UNKNOWN")
+      echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} -${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN}"
+      exit ${PLUGIN_UNKNOWN}
+      ;;
+    *)
+      echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_CRITICAL}"
+      exit ${PLUGIN_CRITICAL}
+      ;;
+    esac
     ;;
   *)
     echo "UNKNOWN - Unknown function"
