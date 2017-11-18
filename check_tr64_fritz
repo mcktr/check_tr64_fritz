@@ -302,7 +302,7 @@ case ${FUNCTION} in
     DOWNSTREAM=$((${DS_BYTE}*8/1000000))
     MSG="Downstream ${DOWNSTREAM} Mbit/s"
 
-    check_greater ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
+    check_lower ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
 
     ;;
   "upstream")
@@ -313,7 +313,7 @@ case ${FUNCTION} in
     UPSTREAM=$((${US_BYTE}*8/1000000))
     MSG="Upstream ${UPSTREAM} Mbit/s"
 
-    check_greater ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
+    check_lower ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
 
     ;;
   "update")
