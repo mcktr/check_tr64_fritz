@@ -34,7 +34,10 @@ check_greater()
   msg=$4
   perfdata=$5
 
-  if (( $(echo "${value} > ${crit}" | bc -l) )); then
+  if [[ ${warn} == 0 || ${crit} == 0 ]]; then
+    echo "OK - ${msg} | ${perfdata}=${value}"
+    exit ${PLUGIN_OK}
+  elif (( $(echo "${value} > ${crit}" | bc -l) )); then
     echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_CRITICAL}
   elif (( $(echo "${value} > ${warn}" | bc -l) )); then
@@ -54,7 +57,10 @@ check_lower()
   msg=$4
   perfdata=$5
 
-  if (( $(echo "${value} < ${crit}" | bc -l) )); then
+  if [[ ${warn} == 0 || ${crit} == 0 ]]; then
+    echo "OK - ${msg} | ${perfdata}=${value}"
+    exit ${PLUGIN_OK}
+  elif (( $(echo "${value} < ${crit}" | bc -l) )); then
     echo "CRITICAL - ${msg} | ${perfdata}=${value} warn=${warn} crit=${crit}"
     exit ${PLUGIN_CRITICAL}
   elif (( $(echo "${value} < ${warn}" | bc -l) )); then
@@ -274,10 +280,9 @@ case ${FUNCTION} in
     check_number "${curr_ds_byte}"
 
     ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+    MSG="Current Downstream ${ds_rate_mbit} Mbit/s"
 
-    echo "OK - Current Downstream ${ds_rate_mbit} Mbit/s | current_downstream=${ds_rate_mbit}"
-
-    exit ${PLUGIN_Ok}
+    check_greater ${ds_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_downstream"
 
     ;;
   "upstreamrate")
@@ -288,10 +293,9 @@ case ${FUNCTION} in
     check_number "${curr_us_byte}"
 
     us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+    MSG="Current Upstream ${us_rate_mbit} Mbit/s"
 
-    echo "OK - Current Upstream ${us_rate_mbit} Mbit/s | current_upstream=${us_rate_mbit}"
-
-    exit ${PLUGIN_OK}
+    check_greater ${us_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_upstream"
 
     ;;
   "downstream")
