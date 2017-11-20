@@ -7,7 +7,7 @@
 3. [Usage](#usage)
 4. [CheckCommand](#checkcommand)
 5. [Security](#security)
-6. [Authors](#authors)
+6. [Contributors](#contributors)
 7. [Thanks](#thanks)
 
 ## Introduction
@@ -168,7 +168,7 @@ attribute in Icinga Web 2.
 3. Ensure that your custom password attribute is protected (defaults are `*pw*,*pass*,community`). If you named your custom variable `frtiz_password` it will be protected by the default entry `*pass*`.
 4. Check it by going to one of your Fritz!Box service and check if the password is display with ``***``.
 
-## Authors
+## Contributors
 
 - [mcktr](https://github.com/mcktr)
 
