@@ -175,6 +175,7 @@ attribute in Icinga Web 2.
 Thanks to all contributors!
 
 - [cxcv](https://github.com/cxcv) for fixing a bug with [performance data output](https://github.com/mcktr/check_tr64_fritz/pull/23)
+- [uclara](https://github.com/uclara) for proposing to add [adjustable warning/critical values for the functions down-/upstream](https://github.com/mcktr/check_tr64_fritz/issues/40)
 
 
 ## Thanks
