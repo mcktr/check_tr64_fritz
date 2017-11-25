@@ -33,6 +33,8 @@ the following menu `Heimnetz` -> `Netzwerk`, switch to the tab
 zulassen`. The Fritz!Box needs a restart, after that the TR-064 feature is
 enabled.
 
+> NOTE:
+>
 > If you don't see the entry `Zugriff für Anwendungen zulassen` you must enable
 > the advanced view(`Erweiterte Ansicht`).
 
@@ -84,6 +86,8 @@ __Arguments__
 | -v   | **Optional.** Print current plugin version and usage text.                                 |
 | -d   | **Optional.** Print debug information (TR-064  XML output).                                |
 
+> NOTE:
+>
 > The username and password are the same as for the web interface of your
 > Fritz!Box. If you don't use the login method with username and password, you
 > can leave the username empty.
@@ -91,9 +95,9 @@ __Arguments__
 __Functions__
 
 | Name           | Description                                                                                           |
-| --             | ---                                                                                                   |
-| status         | Returns the connection state.                                                                         |
-| linkuptime     | Returns the uptime of the WAN link.                                                                   |
+| ---            | ---                                                                                                   |
+| status         | **Optional Index.** Returns the connection state. _Default Index to "pppoe"._                         |
+| linkuptime     | **Optional Index.** Returns the uptime of the WAN link. _Default Index to "pppoe"._                   |
 | uptime         | Returns the device uptime.                                                                            |
 | downstream     | Returns the usable downstream rate in MBit/s.                                                         |
 | upstream       | Returns the usable upstream rate in MBit/s.                                                           |
@@ -102,6 +106,16 @@ __Functions__
 | update         | Returns the update state.                                                                             |
 | thermometer    | **Requires Index.** Returns the connection status and temperature of a smart home thermometer device. |
 
+__Indexes__
+
+| Function               | Index            | Description                         |
+| ---                    | ---              | --                                  |
+| status                 | `cable`, `pppoe` | Check the specified connection type |
+| linkuptime     | `cable`, `pppoe` | Check the specified connection type |
+| thermometer | `[NUMBER]`       | Check the specifed DECT thermometer |
+
+> NOTE:
+>
 > You can specify the index with a double point and the index number after the function name e.g. `thermometer:3`.
 
 _Example:_
@@ -110,10 +124,15 @@ _Example:_
 $ ./check_tr64_fritz -P password -f uptime
 OK - Uptime 29990 seconds (0d 8h 19m 50s) | uptime=2999
 
+$ ./check_tr64_fritz -P password -f status:cable
+WARNING - Connecting | status=1
+
 $ ./check_tr64_fritz -P password -f thermometer:3
 OK - Comet DECT 03.68 - Wohnzimmer CONNECTED 21.5 °C | thermometer_current_state=0 thermometer_current_temp=21.5 warn=0 crit=0
 ```
 
+> NOTE:
+>
 > Please also read the seperate documentation about the [Smart Home index](doc/01-smarthome.md)
 
 ## CheckCommand
@@ -153,6 +172,8 @@ The `check_tr64_script` use SSL to communicate with the Fritz!Box. Therefore you
 need to find out your SSL port for the TR-064 protocol. Please use the script
 `getSecurityPort` to find out the port that is used by your Fritz!Box.
 
+> NOTE:
+>
 > The script `getSecurityPort` don't use the SSL protocol to communitcate with
 > the Fritz!Box. The information about the used port for TR-064 over SSL is
 > available without authentication against the Fritz!Box.
