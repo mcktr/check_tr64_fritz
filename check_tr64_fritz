@@ -188,7 +188,17 @@ case ${FUNCTION} in
   "status" | "linkuptime")
     url='wanpppconn1'
     service='WANPPPConnection'
+
+    if [ ${INDEX} == "cable" ]; then
+      url='wanipconnection1'
+      service='WanIPConnection'
+    elif [ ${INDEX} == "pppoe" ]; then 
+      url='wanpppconn1'
+      service='WANPPPConnection'
+    fi
+
     action='GetInfo'
+
     ;;
   "downstreamrate" | "upstreamrate" | "downstream" | "upstream")
     url='wancommonifconfig1'
