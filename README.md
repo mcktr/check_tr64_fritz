@@ -9,6 +9,7 @@
 5. [Security](#security)
 6. [Contributors](#contributors)
 7. [Thanks](#thanks)
+8. [Development](#development)
 
 ## Introduction
 
@@ -204,3 +205,104 @@ Thanks to all contributors!
 - [FRITZ!Box mit Nagios überwachen](http://blog.gmeiners.net/2013/09/fritzbox-mit-nagios-uberwachen.html)
 - [Fritz!Box and TR-064](http://heise.de/-2550500)
 
+## Development
+
+Fork the project to your GitHub account, commit your changes and send a pull request. For developing on
+this project it is advantageous to have a Fritz!Box at your place to test your changes.
+
+Before we start to fetching and parsing the TR-064 data we need to know which data our
+Fritz!Box provides. We can either fetch a list of this directly from the Fritz!Box or
+we can also look into the documentation from the manufacturer AVM. It is good to do both,
+make sure that the data we want to fetch is supported by AVM and our Fritz!Box actually 
+provides it.
+
+You can fetch the list directly from the Fritz!Box, go to 
+`http://<Your Fritz!Box IP Address>:49000/tr64desc.xml` to fetch this list.
+You will get a XML file that contains many entries and it looks like the following.
+
+```
+[...]
+<service>
+  serviceType>urn:dslforum-org:service:DeviceInfo:1</serviceType>
+  serviceId>urn:DeviceInfo-com:serviceId:DeviceInfo1</serviceId>
+  controlURL>/upnp/control/deviceinfo</controlURL>
+  eventSubURL>/upnp/control/deviceinfo</eventSubURL>
+  SCPDURL>/deviceinfoSCPD.xml</SCPDURL>
+</service>
+[...]
+```
+
+| Name        | Description                                                              |
+| ---         | ---                                                                      |
+| serviceType | Service category which we want to call                                   |
+| controlURL  | URL we need to call, when fetching information from the choosen category |
+
+You can find the manufacturer  documentation [here](https://avm.de/service/schnittstellen/). 
+Have a look into the PDF files and search for a __action__ that provides your needed data.
+
+To finally create our TR-064 request we need three information beforehand. 
+
+1. The _serviceType_ e.g. `DeviceInfo`
+2. The _controlURL_ e.g. `deviceinfo` (Only the last part after the slash.)
+3. The _action_ e.g. 'GetInfo' (Look into the manufacturer documentation to find those.)
+
+Inside the `devel` directory you can find a bash script, that allows you to fetch the raw TR-064 data (basically in  XML
+format).
+
+__fetch_tr64_data.sh__
+
+This script fetches and output the raw TR-064 data.
+
+__Arugments__
+
+| Name | Description                           |
+| ---  | ---                                   |
+| -h   | Hostname/IP Adress of your Fritz!Box. |
+| -p   | The port number for TR-064 over SSL.  |
+| -u   | Username.                             |
+| -P   | Password.                             |
+| -U   | _controlURL_.                         |
+| -s   | _serviceType_.                        |
+| -a   | _action_.                             |
+| -x   | Index.                                |
+
+_Example:_
+
+```
+./fetch_tr64_data.sh -P [PASSWORD] -U deviceinfo -s DeviceInfo -a GetInfo
+
+
+fritz.box
+49443
+dslf-config
+[PASSWORD]
+deviceinfo
+DeviceInfo
+GetInfo
+
+
+
+<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<s:Body>
+<u:GetInfoResponse xmlns:u="urn:dslforum-org:service:DeviceInfo:1">
+<NewManufacturerName>AVM</NewManufacturerName>
+<NewManufacturerOUI>00040E</NewManufacturerOUI>
+<NewModelName>FRITZ!Box 7490</NewModelName>
+<NewDescription>FRITZ!Box 7490 113.06.92</NewDescription>
+<NewProductClass>FRITZ!Box</NewProductClass>
+<NewSerialNumber>[SERIALNO.]</NewSerialNumber>
+<NewSoftwareVersion>113.06.92</NewSoftwareVersion>
+<NewHardwareVersion>FRITZ!Box 7490</NewHardwareVersion>
+<NewSpecVersion>1.0</NewSpecVersion>
+<NewProvisioningCode>[CODE]</NewProvisioningCode>
+<NewUpTime>97384</NewUpTime>
+<NewDeviceLog>
+[LOG]
+</NewDeviceLog>
+</u:GetInfoResponse>
+</s:Body>
+</s:Envelope>
+```
+
+Now you can see the raw TR-064 and see if your needed information is in there. If yes you can now extend the check plugin script and parsing the output to output the result in a proper format. 
