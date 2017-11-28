@@ -198,6 +198,7 @@ Thanks to all contributors!
 
 - [cxcv](https://github.com/cxcv) for fixing a bug with [performance data output](https://github.com/mcktr/check_tr64_fritz/pull/23)
 - [uclara](https://github.com/uclara) for proposing to add [adjustable warning/critical values for the functions down-/upstream](https://github.com/mcktr/check_tr64_fritz/issues/40)
+- [matthenning](https://github.com/matthenning) for reporting and helping resolving a [bug on Fritz!Box cable models](https://github.com/mcktr/check_tr64_fritz/issues/30)
 
 
 ## Thanks
