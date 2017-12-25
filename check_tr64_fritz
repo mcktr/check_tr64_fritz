@@ -139,7 +139,7 @@ usage()
 HOSTNAME="fritz.box"
 PORT="49443"
 USERNAME="dslf-config"
-FUNCTION="status"
+functionAndIndex="status"
 WARN=0
 CRIT=0
 DEBUG=0
