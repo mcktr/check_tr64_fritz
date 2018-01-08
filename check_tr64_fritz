@@ -331,28 +331,15 @@ case ${FUNCTION} in
 
     ;;
   "update")
-    UPDATE=$(find_xml_value "${queryResult}" "NewX_AVM-DE_UpdateState")
+    UPDATE=$(find_xml_value "${queryResult}" "NewUpgradeAvailable")
 
-    case ${UPDATE} in
-      "NoUpdate")
-        echo "OK - Update State: ${UPDATE} | update_pending=${PLUGIN_OK}"
+    if [[ ${UPDATE} == 0 ]]; then
+      echo "OK - No Upgrade available | update_pending=${UPDATE}"
+      exit ${PLUGIN_OK}
+    fi
 
-        exit ${PLUGIN_OK}
-
-        ;;
-      "UpdateAvailable" | "Started" | "Stopped")
-        echo "WARNING - Update State: ${UPDATE} | update_pending=${PLUGIN_WARNING}"
-
-        exit ${PLUGIN_WARNING}
-
-        ;;
-      "Error" | "Unknown")
-        echo "CRITICAL - Update State: ${UPDATE} | update_pending=${PLUGIN_CRITICAL}"
-
-        exit ${PLUGIN_CRITICAL}
-
-        ;;
-    esac
+    echo "CRITICAL - Upgrade available | update_pending=${UPDATE}"
+    exit ${PLUGIN_CRITICAL}
 
     ;;
   "uptime")
