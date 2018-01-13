@@ -34,7 +34,7 @@ the following menu `Heimnetz` -> `Netzwerk`, switch to the tab
 zulassen`. The Fritz!Box needs a restart, after that the TR-064 feature is
 enabled.
 
-> NOTE:
+> **Note**:
 >
 > If you don't see the entry `Zugriff für Anwendungen zulassen` you must enable
 > the advanced view(`Erweiterte Ansicht`).
@@ -87,7 +87,7 @@ __Arguments__
 | -v   | **Optional.** Print current plugin version and usage text.                                 |
 | -d   | **Optional.** Print debug information (TR-064  XML output).                                |
 
-> NOTE:
+> **Note**:
 >
 > The username and password are the same as for the web interface of your
 > Fritz!Box. If you don't use the login method with username and password, you
@@ -115,7 +115,7 @@ __Indexes__
 | linkuptime     | `cable`, `pppoe` | Check the specified connection type |
 | thermometer | `[NUMBER]`       | Check the specifed DECT thermometer |
 
-> NOTE:
+> **Note**:
 >
 > You can specify the index with a double point and the index number after the function name e.g. `thermometer:3`.
 
@@ -132,7 +132,7 @@ $ ./check_tr64_fritz -P password -f thermometer:3
 OK - Comet DECT 03.68 - Wohnzimmer CONNECTED 21.5 °C | thermometer_current_state=0 thermometer_current_temp=21.5 warn=0 crit=0
 ```
 
-> NOTE:
+> **Note**:
 >
 > Please also read the seperate documentation about the [Smart Home index](doc/01-smarthome.md)
 
@@ -173,7 +173,7 @@ The `check_tr64_script` use SSL to communicate with the Fritz!Box. Therefore you
 need to find out your SSL port for the TR-064 protocol. Please use the script
 `getSecurityPort` to find out the port that is used by your Fritz!Box.
 
-> NOTE:
+> **Note**:
 >
 > The script `getSecurityPort` don't use the SSL protocol to communitcate with
 > the Fritz!Box. The information about the used port for TR-064 over SSL is
