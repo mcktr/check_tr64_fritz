@@ -1,5 +1,21 @@
 # Change Log
 
+## [2.3](https://github.com/mcktr/check_tr64_fritz/releases/tag/v2.3) (2018-01-15)
+
+### Enhancements:
+
+- None
+
+### Fixed bugs:
+
+- Fix default function [#54](https://github.com/mcktr/check_tr64_fritz/pull/54)
+- Fix wrong attribute usage in update function [#52](https://github.com/mcktr/check_tr64_fritz/pull/52)
+- Improve error handling for thermometer function [#56](https://github.com/mcktr/check_tr64_fritz/pull/56)
+
+### Support:
+
+- Fix uppercase letters to normal letters in documentation [#57](https://github.com/mcktr/check_tr64_fritz/pull/57)
+
 ## [2.2](https://github.com/mcktr/check_tr64_fritz/releases/tag/v2.2) (2017-11-29)
 
 ### Enhancements:
@@ -45,7 +61,7 @@
 
 ### Fixed bugs:
 
-- none
+- None
 
 ## [1.0](https://github.com/mcktr/check_tr64_fritz/releases/tag/v1.0) (2017-04-03)
 
@@ -56,4 +72,4 @@
 
 ### Fixed bugs:
 
-- none
+- None
