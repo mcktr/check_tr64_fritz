@@ -371,6 +371,12 @@ case ${FUNCTION} in
 
     ;;
   "thermometer")
+
+    if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
+      echo "UNKNOWN - Not able to fetch current temperature | thermometer_current_state=${PLUGIN_UNKNOWN}"
+      exit ${PLUGIN_UNKNOWN}
+    fi
+
     deviceTempFeature=$(find_xml_value "${queryResult}" "NewTemperatureIsEnabled")
     deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
     deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
