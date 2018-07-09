@@ -3,17 +3,22 @@
 #### Table of Contents
 
 1. [Introduction](#introduction)
-2. [Requirements](#requirements)
-3. [Usage](#usage)
-4. [CheckCommand](#checkcommand)
-5. [Security](#security)
-6. [Contributors](#contributors)
-7. [Thanks](#thanks)
-8. [Development](#development)
+2. [Support](#support)
+3. [Requirements](#requirements)
+4. [Usage](#usage)
+5. [CheckCommand](#checkcommand)
+6. [Security](#security)
+7. [Contributors](#contributors)
+8. [Thanks](#thanks)
+9. [Development](#development)
 
 ## Introduction
 
 This is a check plugin for Icinga 2 to monitor a Fritz!Box.
+
+## Support
+
+If you have any questions, please hop onto the community channels.
 
 ## Requirements
 
