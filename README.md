@@ -24,7 +24,7 @@ If you have any questions, please hop onto the community channels.
 
 __Required packages__
 
-You need the following packages installed to use this check plugin:
+The following packages are required to use this check plugin.
 
 - `curl`
 - `bc`
@@ -33,25 +33,27 @@ Please use your favorite package manager to install them.
 
 __Fritz!Box configuration__
 
-The TR-064 feature must be enabled on the Fritz!Box. You can do that by going to
-the following menu `Heimnetz` -> `Netzwerk`, switch to the tab
-`Netzwerkeinstellungen`. Now you must enable the entry `Zugriff für Anwendungen
-zulassen`. The Fritz!Box needs a restart, after that the TR-064 feature is
-enabled.
+The TR-064 feature must be enabled on the Fritz!Box. You can enable the feature in the following menu:
+
+_Heimnetz_ -> _Netzwerk_, switch over to the tab _Netzwerkeinstellungen_
+
+The setting _Zugriff für Anwendungen zulassen_ must be activated. After a restart of your Fritz!Box the
+TR-064 feature is activated.
 
 > **Note**:
 >
-> If you don't see the entry `Zugriff für Anwendungen zulassen` you must enable
-> the advanced view(`Erweiterte Ansicht`).
+> You may need to activate the advanced view (_Erweiterte Ansicht_) to see the setting.
 
 ## Installation
 
 1. Get the [latest stable release](https://github.com/mcktr/check_tr64_fritz/releases)
-2. Open and extract the archive
+2. Extract the archive
 3. Execute the `getSecurityPort` script, to find your TR-064 SSL port
 4. Copy the `check_tr64_fritz` script to your Icinga 2 check plugin directory
-5. Add the CheckCommand definition to your Icinga 2 configuration. Have a look inside the Icinga 2 documentation for more details.
+5. Add the CheckCommand definition to your Icinga 2 configuration.
 6. Create a new service in Icinga 2 for your Fritz!Box
+
+You can find additional information on how to setup check plugins for Icinga 2 in the offical [Icinga 2 documentation](https://www.icinga.com/docs/icinga2/latest/doc/05-service-monitoring/#service-monitoring-plugins)
 
 ## Usage
 
@@ -114,10 +116,10 @@ __Functions__
 
 __Indexes__
 
-| Function               | Index            | Description                         |
-| ---                    | ---              | --                                  |
-| status                 | `cable`, `pppoe` | Check the specified connection type |
-| linkuptime     | `cable`, `pppoe` | Check the specified connection type |
+| Function    | Index            | Description                         |
+| ---         | ---              | --                                  |
+| status      | `cable`, `pppoe` | Check the specified connection type |
+| linkuptime  | `cable`, `pppoe` | Check the specified connection type |
 | thermometer | `[NUMBER]`       | Check the specifed DECT thermometer |
 
 > **Note**:
@@ -171,6 +173,19 @@ You can find more information about a CheckCommand definition inside the [offica
 Icinga 2 documentation](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#checkcommand).
 
 ## Security
+
+__Authentication__
+
+You can use an independently account for the authentication against the Fritz!Box.
+
+1. Login to your Fritz!Box
+2. Navigate to _System_ -> _Fritz!Box-Benutzer_
+
+Here you can add a new user to your Fritz!Box. The user needs at least the following permissions to work properly.
+
+* _FRITZ!Box Einstellungen__
+* _Sprachnachrichten, Faxnachrichten, FRITZ!App Fon und Anrufliste_
+* _Smart Home_
 
 __Script__
 
