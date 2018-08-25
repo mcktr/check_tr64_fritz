@@ -102,26 +102,31 @@ __Arguments__
 
 __Functions__
 
-| Name           | Description                                                                                           |
-| ---            | ---                                                                                                   |
-| status         | **Optional Index.** Returns the connection state. _Default Index to "pppoe"._                         |
-| linkuptime     | **Optional Index.** Returns the uptime of the WAN link. _Default Index to "pppoe"._                   |
-| uptime         | Returns the device uptime.                                                                            |
-| downstream     | Returns the usable downstream rate in MBit/s.                                                         |
-| upstream       | Returns the usable upstream rate in MBit/s.                                                           |
-| downstreamrate | Returns the current downstream speed in MBit/s.                                                       |
-| upstreamrate   | Returns the current upstream speed in MBits/s.                                                        |
-| update         | Returns the update state.                                                                             |
-| thermometer    | **Requires Index.** Returns the connection status and temperature of a smart home thermometer device. |
+| Name           | Description                                                                                                                                                     |
+| ---            | ---                                                                                                                                                             |
+| status         | **Optional Index.** Returns the connection state. _Default Index to "pppoe"._                                                                                   |
+| linkuptime     | **Optional Index.** Returns the uptime of the WAN link. _Default Index to "pppoe"._                                                                             |
+| uptime         | Returns the device uptime.                                                                                                                                      |
+| downstream     | Returns the usable downstream rate in MBit/s.                                                                                                                   |
+| upstream       | Returns the usable upstream rate in MBit/s.                                                                                                                     |
+| downstreamrate | Returns the current downstream speed in MBit/s.                                                                                                                 |
+| upstreamrate   | Returns the current upstream speed in MBits/s.                                                                                                                  |
+| update         | Returns the update state.                                                                                                                                       |
+| thermometer    | **Requires Index.** Returns the connection status and temperature of a smart home thermometer device.                                                           |
+| socketpower    | **Requires Index.** Returns the connection status and current power usage in watts of a smart home socket device.                                               |
+| socketenergy   | **Requires Index.** Returns the connection status and total consumption over the last year in kWh of a smart home socket device.                                |
+| socketswitch   | **Requires Index.** Returns the connection status and the current switch state. Setting the thresholds to 1 or greater will threat the `OFF` state as critical. |
 
 __Indexes__
 
-| Function    | Index            | Description                         |
-| ---         | ---              | --                                  |
-| status      | `cable`, `pppoe` | Check the specified connection type |
-| linkuptime  | `cable`, `pppoe` | Check the specified connection type |
-| thermometer | `[NUMBER]`       | Check the specifed DECT thermometer |
-
+| Function     | Index            | Description                           |
+| ---          | ---              | ---                                   |
+| status       | `cable`, `pppoe` | Check the specified connection type.  |
+| linkuptime   | `cable`, `pppoe` | Check the specified connection type.  |
+| thermometer  | `[NUMBER]`       | Check the specified DECT thermometer. |
+| socketpower  | `[NUMBER]`       | Check the specified DECT socket.      |
+| socketenergy | `[NUMBER]`       | Check the specified DECT socket.      |
+| socketswitch | `[NUMBER]`       | Check the specified DECT socket.      |
 > **Note**:
 >
 > You can specify the index with a double point and the index number after the function name e.g. `thermometer:3`.

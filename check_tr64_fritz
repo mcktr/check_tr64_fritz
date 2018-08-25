@@ -130,6 +130,15 @@ usage()
 	echo "	thermometer:<INDEX> = Smart Home thermometer status"
 	echo "												output of the current temperature"
 	echo ""
+	echo "	socketpower:<INDEX> = Smart Home socket power"
+	echo "							output of the current power usage in watts"
+	echo ""
+	echo "	socketenergy:<INDEX> = Smart Home socket total consumption"
+	echo "							output of the total consumption over the last year in kWh"
+	echo ""
+	echo "	socketswitch:<INDEX> = Smart Home socket switch status"
+	echo "							output of the switch status"
+	echo ""
 	echo "DEBUG"
 	echo ""
 	echo "	-d: prints debug information"
@@ -192,7 +201,7 @@ case ${FUNCTION} in
 		if [ ${INDEX} == "cable" ]; then
 			url='wanipconnection1'
 			service='WanIPConnection'
-		elif [ ${INDEX} == "pppoe" ]; then 
+		elif [ ${INDEX} == "pppoe" ]; then
 			url='wanpppconn1'
 			service='WANPPPConnection'
 		fi
@@ -216,7 +225,7 @@ case ${FUNCTION} in
 		service='DeviceInfo'
 		action='GetInfo'
 		;;
-	"thermometer")
+	"thermometer" | "socketpower" | "socketenergy" | "socketswitch")
 		url='x_homeauto'
 		service='X_AVM-DE_Homeauto'
 		action='GetGenericDeviceInfos'
@@ -360,7 +369,7 @@ case ${FUNCTION} in
 	"thermometer")
 
 		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current temperature | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
+			echo "UNKNOWN - Not able to fetch current thermometer temperature | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
@@ -385,11 +394,134 @@ case ${FUNCTION} in
 			check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "thermometer_current_state=${PLUGIN_OK} thermometer_current_temp"
 			;;
 		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} -${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
 			exit ${PLUGIN_UNKNOWN}
 			;;
 		*)
 			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_CRITICAL};0;0;0;0"
+			exit ${PLUGIN_CRITICAL}
+			;;
+		esac
+		;;
+	"socketpower")
+
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
+			echo "UNKNOWN - Not able to fetch current socket status"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
+		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
+		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
+		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
+		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
+		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
+		deviceMultimeterPower=$(find_xml_value "${queryResult}" "NewMultimeterPower")
+
+		currentPower=$( echo "scale=2; ${deviceMultimeterPower}/100" | bc )
+
+		case ${devicePresent} in
+		"CONNECTED")
+			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
+				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
+				exit ${PLUGIN_UNKNOWN}
+			fi
+
+			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+
+			check_greater ${currentPower} ${WARN} ${CRIT} "${text}" "socket_current_power"
+			;;
+		"UNKNOWN")
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+			exit ${PLUGIN_UNKNOWN}
+			;;
+		*)
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+			exit ${PLUGIN_CRITICAL}
+			;;
+		esac
+		;;
+	"socketenergy")
+
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
+			echo "UNKNOWN - Not able to fetch current socket status"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
+		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
+		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
+		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
+		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
+		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
+		deviceMultimeterEnergy=$(find_xml_value "${queryResult}" "NewMultimeterEnergy")
+
+		currentEnergy=$( echo "scale=2; ${deviceMultimeterEnergy}/1000" | bc )
+
+		case ${devicePresent} in
+		"CONNECTED")
+			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
+				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
+				exit ${PLUGIN_UNKNOWN}
+			fi
+
+			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
+
+			check_greater ${currentEnergy} ${WARN} ${CRIT} "${text}" "socket_total_consumption"
+			;;
+		"UNKNOWN")
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
+			exit ${PLUGIN_UNKNOWN}
+			;;
+		*)
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
+			exit ${PLUGIN_CRITICAL}
+			;;
+		esac
+		;;
+	"socketswitch")
+
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
+			echo "UNKNOWN - Not able to fetch current socket status"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
+		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
+		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
+		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
+		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
+		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
+		deviceSocketSwitch=$(find_xml_value "${queryResult}" "NewSwitchState")
+
+		case ${devicePresent} in
+		"CONNECTED")
+			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
+				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
+				exit ${PLUGIN_UNKNOWN}
+			fi
+
+			interpretOffAsCritical="false"
+
+			if (( $(echo "${WARN} >= 1" | bc -l) )); then
+				interpretOffAsCritical="true"
+			fi
+
+			if (( $(echo "${CRIT} >= 1" | bc -l) )); then
+				interpretOffAsCritical="true"
+			fi
+
+			if [ "${deviceSocketSwitch}" == "OFF" ] && [ "${interpretOffAsCritical}" == "true" ]; then
+				echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+				exit ${PLUGIN_CRITICAL}
+			fi
+
+			echo "OK - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+			exit ${PLUGIN_OK}
+			;;
+		"UNKNOWN")
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+			exit ${PLUGIN_UNKNOWN}
+			;;
+		*)
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
 			exit ${PLUGIN_CRITICAL}
 			;;
 		esac
