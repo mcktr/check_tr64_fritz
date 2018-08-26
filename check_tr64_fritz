@@ -373,6 +373,11 @@ case ${FUNCTION} in
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
+			echo "UNKNOWN - Specified device index invalid"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
 		deviceTempFeature=$(find_xml_value "${queryResult}" "NewTemperatureIsEnabled")
 		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
 		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
@@ -407,6 +412,11 @@ case ${FUNCTION} in
 
 		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
 			echo "UNKNOWN - Not able to fetch current socket status"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
+			echo "UNKNOWN - Specified device index invalid"
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
@@ -447,6 +457,11 @@ case ${FUNCTION} in
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
+			echo "UNKNOWN - Specified device index invalid"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
 		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
 		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
 		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
@@ -481,6 +496,11 @@ case ${FUNCTION} in
 
 		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
 			echo "UNKNOWN - Not able to fetch current socket status"
+			exit ${PLUGIN_UNKNOWN}
+		fi
+
+		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
+			echo "UNKNOWN - Specified device index invalid"
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
