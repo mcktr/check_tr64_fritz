@@ -35,16 +35,16 @@ check_greater()
 	perfdata=$5
 
 	if [[ ${warn} == 0 || ${crit} == 0 ]]; then
-		echo "OK - ${msg} | ${perfdata}=${value}"
+		echo "OK - ${msg} | ${perfdata}=${value};;;;"
 		exit ${PLUGIN_OK}
 	elif (( $(echo "${value} > ${crit}" | bc -l) )); then
-		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_CRITICAL}
 	elif (( $(echo "${value} > ${warn}" | bc -l) )); then
-		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_WARNING}
 	else
-		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_OK}
 	fi
 }
@@ -58,16 +58,16 @@ check_lower()
 	perfdata=$5
 
 	if [[ ${warn} == 0 || ${crit} == 0 ]]; then
-		echo "OK - ${msg} | ${perfdata}=${value}"
+		echo "OK - ${msg} | ${perfdata}=${value};;;;"
 		exit ${PLUGIN_OK}
 	elif (( $(echo "${value} < ${crit}" | bc -l) )); then
-		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_CRITICAL}
 	elif (( $(echo "${value} < ${warn}" | bc -l) )); then
-		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_WARNING}
 	else
-		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
+		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};;"
 		exit ${PLUGIN_OK}
 	fi
 }
@@ -257,21 +257,21 @@ case ${FUNCTION} in
 		STATUS=$(find_xml_value "${queryResult}" "NewConnectionStatus")
 
 		if [ -z "${STATUS}" ]; then
-			echo "UNKNOWN - Could not get a response | status=${PLUGIN_UNKNOWN};0;0;0;0"
+			echo "UNKNOWN - Could not get a response | 'status'=${PLUGIN_UNKNOWN};;;;"
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
 		case ${STATUS} in
 			"Connected")
-				echo "OK - ${STATUS} | status=${PLUGIN_OK};0;0;0;0"
+				echo "OK - ${STATUS} | 'status'=${PLUGIN_OK};;;;"
 				exit ${PLUGIN_OK}
 				;;
 			"Connecting" | "Authenticating")
-				echo "WARNING - ${STATUS} | status=${PLUGIN_WARNING};0;0;0;0"
+				echo "WARNING - ${STATUS} | 'status'=${PLUGIN_WARNING};;;;"
 				exit ${PLUGIN_WARNING}
 				;;
 			*)
-				echo "ERROR - ${STATUS} | status=${PLUGIN_ERROR};0;0;0;0"
+				echo "ERROR - ${STATUS} | 'status'=${PLUGIN_ERROR};;;;"
 				exit ${PLUGIN_ERROR}
 				;;
 		esac
@@ -286,7 +286,7 @@ case ${FUNCTION} in
 		minutes=$(( (${LINKUPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
 		seconds=$(( ${LINKUPTIME} % 60 ))
 
-		echo "OK - Link Uptime ${LINKUPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | linkuptime=${LINKUPTIME}s;0;0;0;0"
+		echo "OK - Link Uptime ${LINKUPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | 'linkuptime'=${LINKUPTIME}s;;;;"
 
 		exit ${PLUGIN_OK}
 
@@ -301,7 +301,7 @@ case ${FUNCTION} in
 		ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
 		MSG="Current Downstream ${ds_rate_mbit} Mbit/s"
 
-		check_greater ${ds_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_downstream"
+		check_greater ${ds_rate_mbit} ${WARN} ${CRIT} "${MSG}" "'current_downstream'"
 
 		;;
 	"upstreamrate")
@@ -314,7 +314,7 @@ case ${FUNCTION} in
 		us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
 		MSG="Current Upstream ${us_rate_mbit} Mbit/s"
 
-		check_greater ${us_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_upstream"
+		check_greater ${us_rate_mbit} ${WARN} ${CRIT} "${MSG}" "'current_upstream'"
 
 		;;
 	"downstream")
@@ -325,7 +325,7 @@ case ${FUNCTION} in
 		DOWNSTREAM=$((${DS_BYTE}*8/1000000))
 		MSG="Downstream ${DOWNSTREAM} Mbit/s"
 
-		check_lower ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
+		check_lower ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "'downstream_rate'"
 
 		;;
 	"upstream")
@@ -336,18 +336,18 @@ case ${FUNCTION} in
 		UPSTREAM=$((${US_BYTE}*8/1000000))
 		MSG="Upstream ${UPSTREAM} Mbit/s"
 
-		check_lower ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
+		check_lower ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "'upstream_rate'"
 
 		;;
 	"update")
 		UPDATE=$(find_xml_value "${queryResult}" "NewUpgradeAvailable")
 
 		if [[ ${UPDATE} == 0 ]]; then
-			echo "OK - No Upgrade available | update_pending=${UPDATE};0;0;0;0"
+			echo "OK - No Upgrade available | 'update_pending'=${UPDATE};;;;"
 			exit ${PLUGIN_OK}
 		fi
 
-		echo "CRITICAL - Upgrade available | update_pending=${UPDATE};0;0;0;0"
+		echo "CRITICAL - Upgrade available | 'update_pending'=${UPDATE};;;;"
 		exit ${PLUGIN_CRITICAL}
 
 		;;
@@ -361,7 +361,7 @@ case ${FUNCTION} in
 		minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
 		seconds=$(( ${UPTIME} % 60 ))
 
-		echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}s;0;0;0;0"
+		echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | 'uptime'=${UPTIME}s;;;;"
 
 		exit ${PLUGIN_OK}
 
@@ -369,7 +369,7 @@ case ${FUNCTION} in
 	"thermometer")
 
 		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current thermometer temperature | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
+			echo "UNKNOWN - Not able to fetch current thermometer temperature | 'thermometer_current_state'=${PLUGIN_UNKNOWN};;;;"
 			exit ${PLUGIN_UNKNOWN}
 		fi
 
@@ -390,20 +390,20 @@ case ${FUNCTION} in
 		case ${devicePresent} in
 		"CONNECTED")
 			if [ "${deviceTempFeature}" != "ENABLED" ]; then
-				echo "UNKNOWN - Temperature is not enabled on this device | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
+				echo "UNKNOWN - Temperature is not enabled on this device | 'thermometer_current_state'=${PLUGIN_UNKNOWN};;;;"
 				exit ${PLUGIN_UNKNOWN}
 			fi
 
 			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C"
 
-			check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "thermometer_current_state=${PLUGIN_OK} thermometer_current_temp"
+			check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "'thermometer_current_state'=${PLUGIN_OK};;;; 'thermometer_current_temp'"
 			;;
 		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} | 'thermometer_current_state'=${PLUGIN_UNKNOWN};;;;"
 			exit ${PLUGIN_UNKNOWN}
 			;;
 		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_CRITICAL};0;0;0;0"
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} | 'thermometer_current_state'=${PLUGIN_CRITICAL};;;;"
 			exit ${PLUGIN_CRITICAL}
 			;;
 		esac
@@ -438,14 +438,14 @@ case ${FUNCTION} in
 
 			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
 
-			check_greater ${currentPower} ${WARN} ${CRIT} "${text}" "socket_current_power"
+			check_greater ${currentPower} ${WARN} ${CRIT} "${text}" "'socket_current_power'"
 			;;
 		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_UNKNOWN}
 			;;
 		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_CRITICAL}
 			;;
 		esac
@@ -480,14 +480,14 @@ case ${FUNCTION} in
 
 			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
 
-			check_greater ${currentEnergy} ${WARN} ${CRIT} "${text}" "socket_total_consumption"
+			check_greater ${currentEnergy} ${WARN} ${CRIT} "${text}" "'socket_total_consumption'"
 			;;
 		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_UNKNOWN}
 			;;
 		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_CRITICAL}
 			;;
 		esac
@@ -519,6 +519,11 @@ case ${FUNCTION} in
 			fi
 
 			interpretOffAsCritical="false"
+			switchStateInt=0
+
+			if [ "${deviceSocketSwitch}" == "ON" ]; then
+				switchStateInt=1
+			fi
 
 			if (( $(echo "${WARN} >= 1" | bc -l) )); then
 				interpretOffAsCritical="true"
@@ -529,19 +534,19 @@ case ${FUNCTION} in
 			fi
 
 			if [ "${deviceSocketSwitch}" == "OFF" ] && [ "${interpretOffAsCritical}" == "true" ]; then
-				echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+				echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch} | 'socket_switch_state'=${switchStateInt};;;;"
 				exit ${PLUGIN_CRITICAL}
 			fi
 
-			echo "OK - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+			echo "OK - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch} | 'socket_switch_state'=${switchStateInt};;;;"
 			exit ${PLUGIN_OK}
 			;;
 		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_UNKNOWN}
 			;;
 		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
+			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent}"
 			exit ${PLUGIN_CRITICAL}
 			;;
 		esac
