@@ -212,7 +212,7 @@ attribute in Icinga Web 2.
 
 1. Log in to Icinga Web 2.
 2. Go to `Configuration` -> `Modules` -> `monitoring` -> `Security`.
-3. Ensure that your custom password attribute is protected (defaults are `*pw*,*pass*,community`). If you named your custom variable `frtiz_password` it will be protected by the default entry `*pass*`.
+3. Ensure that your custom password attribute is protected (defaults are `*pw*,*pass*,community`). If you named your custom variable `fritz_password` it will be protected by the default entry `*pass*`.
 4. Check it by going to one of your Fritz!Box service and check if the password is display with ``***``.
 
 ## Contributors
