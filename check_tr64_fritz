@@ -302,30 +302,14 @@ case ${FUNCTION} in
   ;;
 
   "activehosts")
-        echo "Result:${queryResult}"
         URL=$(find_xml_value "${queryResult}" "NewX_AVM-DE_HostListPath")
-        echo $URL
         URL=$(echo "http://${HOSTNAME}:49000$URL")
-        echo $URL
         IFSold=$IFS
         IFS=$(echo -en "\n")
         content=$(wget ${URL} -q -O -)
-        #hostnames=($(find_xml_value "${content}" "HostName"))
-
-        #echo $hostnames[4]
 
         active=$(find_xml_value "${content}" "Active" | grep "1" | wc -l)
         inactive=$(find_xml_value "${content}" "Active" | grep "0" | wc -l)
-        #content=$(echo $content | sed 's/\/Item/\'$'\n/g')i
-        #for line in $content
-        #do
-        #       echo $line
-        #       host=$(find_xml_value "${line}" "HostName")
-        #       active=$(find_xml_value "${line}" "Active")
-        #       mac=$(find_xml_value "${line}" "MACAddress")
-        #       echo "$host;$active;$mac"
-
-        #done
 
         IFS=$IFSold
 
