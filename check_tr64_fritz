@@ -10,139 +10,136 @@ PLUGIN_UNKNOWN=3
 
 find_xml_value()
 {
-	xml=$1
-	value=$2
+  xml=$1
+  value=$2
 
-	echo "${xml}" | sed -ne "/<${value}>/s#\s*<[^>]*>\s*##gp"
+  echo "${xml}" | sed -ne "/<${value}>/s#\s*<[^>]*>\s*##gp"
 }
 
 check_number()
 {
-	VAR=$1
+  VAR=$1
 
-	if [[ ! "${VAR}" =~ ^[0-9]+$ ]]; then
-		echo "UNKNOWN - Could not parse output"
-		exit ${PLUGIN_UNKNOWN}
-	fi
+  if [[ ! "${VAR}" =~ ^[0-9]+$ ]]; then
+    echo "UNKNOWN - Could not parse output"
+    exit ${PLUGIN_UNKNOWN}
+  fi
 }
 
 check_greater()
 {
-	value=$1
-	warn=$2
-	crit=$3
-	msg=$4
-	perfdata=$5
+  value=$1
+  warn=$2
+  crit=$3
+  msg=$4
+  perfdata=$5
 
-	if [[ ${warn} == 0 || ${crit} == 0 ]]; then
-		echo "OK - ${msg} | ${perfdata}=${value}"
-		exit ${PLUGIN_OK}
-	elif (( $(echo "${value} > ${crit}" | bc -l) )); then
-		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_CRITICAL}
-	elif (( $(echo "${value} > ${warn}" | bc -l) )); then
-		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_WARNING}
-	else
-		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_OK}
-	fi
+  if [[ ${warn} == 0 || ${crit} == 0 ]]; then
+    echo "OK - ${msg} | ${perfdata}=${value}"
+    exit ${PLUGIN_OK}
+  elif (( $(echo "${value} > ${crit}" | bc -l) )); then
+    echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_CRITICAL}
+  elif (( $(echo "${value} > ${warn}" | bc -l) )); then
+    echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_WARNING}
+  else
+    echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_OK}
+  fi
 }
 
 check_lower()
 {
-	value=$1
-	warn=$2
-	crit=$3
-	msg=$4
-	perfdata=$5
+  value=$1
+  warn=$2
+  crit=$3
+  msg=$4
+  perfdata=$5
 
-	if [[ ${warn} == 0 || ${crit} == 0 ]]; then
-		echo "OK - ${msg} | ${perfdata}=${value}"
-		exit ${PLUGIN_OK}
-	elif (( $(echo "${value} < ${crit}" | bc -l) )); then
-		echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_CRITICAL}
-	elif (( $(echo "${value} < ${warn}" | bc -l) )); then
-		echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_WARNING}
-	else
-		echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit};0;0"
-		exit ${PLUGIN_OK}
-	fi
+  if [[ ${warn} == 0 || ${crit} == 0 ]]; then
+    echo "OK - ${msg} | ${perfdata}=${value}"
+    exit ${PLUGIN_OK}
+  elif (( $(echo "${value} < ${crit}" | bc -l) )); then
+    echo "CRITICAL - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_CRITICAL}
+  elif (( $(echo "${value} < ${warn}" | bc -l) )); then
+    echo "WARNING - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_WARNING}
+  else
+    echo "OK - ${msg} | ${perfdata}=${value};${warn};${crit}"
+    exit ${PLUGIN_OK}
+  fi
 }
 
 
 version()
 {
-	echo "check_tr64_fritz"
-	echo "	Version ${VERSION}"
-	echo ""
+  echo "check_tr64_fritz"
+  echo "  Version ${VERSION}"
+  echo ""
 }
 
 usage()
 {
-	echo "usage: check_tr64_fritz -h <HOSTNAME> -p <PORT> -u <USERNAME> -P <PASSWORD> -f <FUNCTION> -w <WARNING> -c <CRITICAL>"
-	echo ""
-	echo "	-h: IP-Adress or hostname from the Fritz!Box"
-	echo "			default = fritz.box"
-	echo ""
-	echo "	-p: SSL-Port from the Fritz!Box"
-	echo "			default = 49443"
-	echo ""
-	echo "	-u: Login Username for the Fritz!Box"
-	echo "			default = dslf-config"
-	echo ""
-	echo "	-P: Login Password for the Fritz!Box"
-	echo ""
-	echo "	-f: Function to check"
-	echo ""
-	echo "	-w: value where the warning state come into effect"
-	echo "			default = -1 / returns every time an OK state"
-	echo ""
-	echo "	-c: value where the critical state come into effect"
-	echo "			default = -1 / return every time an OK state"
-	echo ""
-	echo "	-v: print version and usage page"
-	echo ""
-	echo "Functions:"
-	echo ""
-	echo "	status = Connection Status"
-	echo ""
-	echo "	linkuptime = WAN link uptime"
-	echo ""
-	echo "	uptime = device uptime"
-	echo ""
-	echo "	downstream = useable downstream rate"
-	echo "							 output in Mbit/s"
-	echo ""
-	echo "	upstream = useable upstream rate"
-	echo "						 output in Mbit/s"
-	echo ""
-	echo "	downstreamrate = current downstream rate"
-	echo "									 output in Mbit/s"
-	echo ""
-	echo "	upstreamrate = current upstream rate"
-	echo "								 output in Mbit/s"
-	echo ""
-	echo "	update = get the update state"
-	echo ""
-	echo "	thermometer:<INDEX> = Smart Home thermometer status"
-	echo "												output of the current temperature"
-	echo ""
-	echo "	socketpower:<INDEX> = Smart Home socket power"
-	echo "							output of the current power usage in watts"
-	echo ""
-	echo "	socketenergy:<INDEX> = Smart Home socket total consumption"
-	echo "							output of the total consumption over the last year in kWh"
-	echo ""
-	echo "	socketswitch:<INDEX> = Smart Home socket switch status"
-	echo "							output of the switch status"
-	echo ""
-	echo "DEBUG"
-	echo ""
-	echo "	-d: prints debug information"
-	exit ${PLUGIN_UNKNOWN}
+  echo "usage: check_tr64_fritz -h <HOSTNAME> -p <PORT> -u <USERNAME> -P <PASSWORD> -f <FUNCTION> -w <WARNING> -c <CRITICAL>"
+  echo ""
+  echo "  -h: IP-Adress or hostname from the Fritz!Box"
+  echo "      default = fritz.box"
+  echo ""
+  echo "  -p: SSL-Port from the Fritz!Box"
+  echo "      default = 49443"
+  echo ""
+  echo "  -u: Login Username for the Fritz!Box"
+  echo "      default = dslf-config"
+  echo ""
+  echo "  -P: Login Password for the Fritz!Box"
+  echo ""
+  echo "  -f: Function to check"
+  echo ""
+  echo "  -w: value where the warning state come into effect"
+  echo "      default = -1 / returns every time an OK state"
+  echo ""
+  echo "  -c: value where the critical state come into effect"
+  echo "      default = -1 / return every time an OK state"
+  echo ""
+  echo "  -v: print version and usage page"
+  echo ""
+  echo "Functions:"
+  echo ""
+  echo "  status = Connection Status"
+  echo ""
+  echo "  lanlink = Checks linkstate of LAN Interface (Not yet implemented)"
+  echo ""
+  echo "  activehosts = Count active hosts"
+  echo ""
+  echo "  linkuptime = WAN link uptime"
+  echo ""
+  echo "  wanlink = WAN link Information"
+  echo ""
+  echo "  uptime = device uptime"
+  echo ""
+  echo "  downstream = useable downstream rate"
+  echo "               output in Mbit/s"
+  echo ""
+  echo "  upstream = useable upstream rate"
+  echo "             output in Mbit/s"
+  echo ""
+  echo "  downstreamrate = current downstream rate"
+  echo "                   output in Mbit/s"
+  echo ""
+  echo "  upstreamrate = current upstream rate"
+  echo "                 output in Mbit/s"
+  echo ""
+  echo "  update = get the update state"
+  echo ""
+  echo "  thermometer:<INDEX> = Smart Home thermometer status"
+  echo "                        output of the current temperature"
+  echo ""
+  echo "DEBUG"
+  echo ""
+  echo "  -d: prints debug information"
+  exit ${PLUGIN_UNKNOWN}
 }
 
 HOSTNAME="fritz.box"
@@ -155,83 +152,102 @@ DEBUG=0
 INDEX=0
 
 while getopts h:p:u:P:f:w:c:dv OPTNAME; do
-	case "${OPTNAME}" in
-	h)
-		HOSTNAME="${OPTARG}"
-		;;
-	p)
-		PORT="${OPTARG}"
-		;;
-	u)
-		USERNAME="${OPTARG}"
-		;;
-	P)
-		PASSWORD="${OPTARG}"
-		;;
-	f)
-		functionAndIndex="${OPTARG}"
-		;;
-	w)
-		WARN="${OPTARG}"
-		;;
-	c)
-		CRIT="${OPTARG}"
-		;;
-	d)
-		DEBUG=1
-		;;
-	v)
-		version
-		usage
-		;;
-	*)
-		usage
-		;;
-	esac
+  case "${OPTNAME}" in
+  h)
+    HOSTNAME="${OPTARG}"
+    ;;
+  p)
+    PORT="${OPTARG}"
+    ;;
+  u)
+    USERNAME="${OPTARG}"
+    ;;
+  P)
+    PASSWORD="${OPTARG}"
+    ;;
+  f)
+    functionAndIndex="${OPTARG}"
+    ;;
+  w)
+    WARN="${OPTARG}"
+    ;;
+  c)
+    CRIT="${OPTARG}"
+    ;;
+  d)
+    DEBUG=1
+    ;;
+  v)
+    version
+    usage
+    ;;
+  *)
+    usage
+    ;;
+  esac
 done
 
 FUNCTION=$( echo "${functionAndIndex}" | cut -d ':' -f 1 )
 INDEX=$( echo "${functionAndIndex}" | cut -d ':' -f 2 )
 
 case ${FUNCTION} in
-	"status" | "linkuptime")
-		url='wanpppconn1'
-		service='WANPPPConnection'
+  "status" | "linkuptime")
+    url='wanpppconn1'
+    service='WANPPPConnection'
 
-		if [ ${INDEX} == "cable" ]; then
-			url='wanipconnection1'
-			service='WanIPConnection'
-		elif [ ${INDEX} == "pppoe" ]; then
-			url='wanpppconn1'
-			service='WANPPPConnection'
-		fi
+    if [ ${INDEX} == "cable" ]; then
+      url='wanipconnection1'
+      service='WanIPConnection'
+    elif [ ${INDEX} == "pppoe" ]; then
+      url='wanpppconn1'
+      service='WANPPPConnection'
+    fi
 
-		action='GetInfo'
+    action='GetInfo'
+   ;;
 
-		;;
-	"downstreamrate" | "upstreamrate" | "downstream" | "upstream")
-		url='wancommonifconfig1'
-		service='WANCommonInterfaceConfig'
-		action='X_AVM-DE_GetOnlineMonitor'
-		xmlVar='<NewSyncGroupIndex>0</NewSyncGroupIndex>'
-		;;
-	"update")
-		url='userif'
-		service='UserInterface'
-		action='GetInfo'
-		;;
-	"uptime")
-		url='deviceinfo'
-		service='DeviceInfo'
-		action='GetInfo'
-		;;
-	"thermometer" | "socketpower" | "socketenergy" | "socketswitch")
-		url='x_homeauto'
-		service='X_AVM-DE_Homeauto'
-		action='GetGenericDeviceInfos'
-		xmlVar="<NewIndex>${INDEX}</NewIndex>"
-		;;
+
+   "lanlink")
+    url='lanethernetifcfg'
+    service='LANEthernetInterfaceConfig'
+    action='GetInfo'
+   ;;
+
+   "activehosts")
+    url='hosts'
+    service='Hosts'
+    action='X_AVM-DE_GetHostListPath'
+   ;;
+
+  "downstreamrate" | "upstreamrate" | "downstream" | "upstream")
+    url='wancommonifconfig1'
+    service='WANCommonInterfaceConfig'
+    action='X_AVM-DE_GetOnlineMonitor'
+    xmlVar='<NewSyncGroupIndex>0</NewSyncGroupIndex>'
+    ;;
+  "wanlink")
+    url='wancommonifconfig1'
+    service='WANCommonInterfaceConfig'
+    action='GetCommonLinkProperties'
+    ;;
+  "update")
+    url='userif'
+    service='UserInterface'
+    action='GetInfo'
+    ;;
+  "uptime")
+    url='deviceinfo'
+    service='DeviceInfo'
+    action='GetInfo'
+    ;;
+  "thermometer")
+    url='x_homeauto'
+    service='X_AVM-DE_Homeauto'
+    action='GetGenericDeviceInfos'
+    xmlVar="<NewIndex>${INDEX}</NewIndex>"
+    ;;
 esac
+
 
 queryResult=$(curl "https://${HOSTNAME}:${PORT}/upnp/control/${url}" \
 -k \
@@ -244,310 +260,230 @@ queryResult=$(curl "https://${HOSTNAME}:${PORT}/upnp/control/${url}" \
 )
 
 if [[ "${queryResult}" == *"401 Unauthorized"* ]]; then
-	echo "ERROR - Wrong Password"
-	exit ${PLUGIN_ERROR}
+  echo "ERROR - Wrong Password"
+  exit ${PLUGIN_ERROR}
 fi
 
 if [ ${DEBUG} -eq 1 ]; then
-	echo "${queryResult}"
+  echo "${queryResult}"
 fi
 
 case ${FUNCTION} in
-	"status")
-		STATUS=$(find_xml_value "${queryResult}" "NewConnectionStatus")
+  "status")
+    STATUS=$(find_xml_value "${queryResult}" "NewConnectionStatus")
+    LASTERROR=$(find_xml_value "${queryResult}" "NewLastConnectionError")
+    CONTYPE=$(find_xml_value "${queryResult}" "NewConnectionType")
+    EXTERNALIP=$(find_xml_value "${queryResult}" "NewExternalIPAddress")
+    if [ -z "${STATUS}" ]; then
+      echo "UNKNOWN - Could not get a response | status=${PLUGIN_UNKNOWN}"
+      exit ${PLUGIN_UNKNOWN}
+    fi
+    outtext="${STATUS} \nLastError: ${LASTERROR} \nType: ${CONTYPE} \nExternalIP: ${EXTERNALIP}"
+    case ${STATUS} in
+      "Connected")
+        echo -e "OK - $outtext | status=${PLUGIN_OK}"
+        exit ${PLUGIN_OK}
+        ;;
+      "Connecting" | "Authenticating")
+        echo "WARNING - $outtext | status=${PLUGIN_WARNING}"
+        exit ${PLUGIN_WARNING}
+        ;;
+      *)
+        echo "ERROR - $outtext | status=${PLUGIN_ERROR}"
+        exit ${PLUGIN_ERROR}
+        ;;
+    esac
+    ;;
+  "lanlink")
+        echo "Result:${queryResult}"
+        # Dont know howto select Interface ?!
 
-		if [ -z "${STATUS}" ]; then
-			echo "UNKNOWN - Could not get a response | status=${PLUGIN_UNKNOWN};0;0;0;0"
-			exit ${PLUGIN_UNKNOWN}
-		fi
 
-		case ${STATUS} in
-			"Connected")
-				echo "OK - ${STATUS} | status=${PLUGIN_OK};0;0;0;0"
-				exit ${PLUGIN_OK}
-				;;
-			"Connecting" | "Authenticating")
-				echo "WARNING - ${STATUS} | status=${PLUGIN_WARNING};0;0;0;0"
-				exit ${PLUGIN_WARNING}
-				;;
-			*)
-				echo "ERROR - ${STATUS} | status=${PLUGIN_ERROR};0;0;0;0"
-				exit ${PLUGIN_ERROR}
-				;;
-		esac
-		;;
-	"linkuptime")
-		LINKUPTIME=$(find_xml_value "${queryResult}" "NewUptime")
+  ;;
 
-		check_number "${LINKUPTIME}"
+  "activehosts")
+        echo "Result:${queryResult}"
+        URL=$(find_xml_value "${queryResult}" "NewX_AVM-DE_HostListPath")
+        echo $URL
+        URL=$(echo "http://${HOSTNAME}:49000$URL")
+        echo $URL
+        IFSold=$IFS
+        IFS=$(echo -en "\n")
+        content=$(wget ${URL} -q -O -)
+        #hostnames=($(find_xml_value "${content}" "HostName"))
 
-		days=$(( ${LINKUPTIME} / 86400 ))
-		hours=$(( (${LINKUPTIME} / 3600) - (${days} * 24) ))
-		minutes=$(( (${LINKUPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
-		seconds=$(( ${LINKUPTIME} % 60 ))
+        #echo $hostnames[4]
 
-		echo "OK - Link Uptime ${LINKUPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | linkuptime=${LINKUPTIME}s;0;0;0;0"
+        active=$(find_xml_value "${content}" "Active" | grep "1" | wc -l)
+        inactive=$(find_xml_value "${content}" "Active" | grep "0" | wc -l)
+        #content=$(echo $content | sed 's/\/Item/\'$'\n/g')i
+        #for line in $content
+        #do
+        #       echo $line
+        #       host=$(find_xml_value "${line}" "HostName")
+        #       active=$(find_xml_value "${line}" "Active")
+        #       mac=$(find_xml_value "${line}" "MACAddress")
+        #       echo "$host;$active;$mac"
 
-		exit ${PLUGIN_OK}
+        #done
 
-		;;
-	"downstreamrate")
-		LIST_DS_BYTE=$(find_xml_value "${queryResult}" "Newds_current_bps")
+        IFS=$IFSold
 
-		curr_ds_byte=$(echo "${LIST_DS_BYTE}" | cut -d ',' -f 1)
+        echo -e "OK - $active hosts are active ($inactive inactive) | active=${active} inactive=${inactive}"
 
-		check_number "${curr_ds_byte}"
+  ;;
 
-		ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
-		MSG="Current Downstream ${ds_rate_mbit} Mbit/s"
+  "linkuptime")
+    LINKUPTIME=$(find_xml_value "${queryResult}" "NewUptime")
 
-		check_greater ${ds_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_downstream"
+    check_number "${LINKUPTIME}"
 
-		;;
-	"upstreamrate")
-		LIST_US_BYTE=$(find_xml_value "${queryResult}" "Newus_current_bps")
+    days=$(( ${LINKUPTIME} / 86400 ))
+    hours=$(( (${LINKUPTIME} / 3600) - (${days} * 24) ))
+    minutes=$(( (${LINKUPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
+    seconds=$(( ${LINKUPTIME} % 60 ))
 
-		curr_us_byte=$(echo "${LIST_US_BYTE}" | cut -d ',' -f 1)
+    echo "OK - Link Uptime ${LINKUPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | linkuptime=${LINKUPTIME}"
 
-		check_number "${curr_us_byte}"
+    exit ${PLUGIN_OK}
 
-		us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
-		MSG="Current Upstream ${us_rate_mbit} Mbit/s"
+    ;;
+  "wanlink")
+    ACCESSTYPE=$(find_xml_value "${queryResult}" "NewWANAccessType")
+    PHYSICALLINK=$(find_xml_value "${queryResult}" "NewPhysicalLinkStatus")
 
-		check_greater ${us_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_upstream"
+    outtext="${PHYSICALLINK} \nAccessType: ${ACCESSTYPE}"
+    case ${PHYSICALLINK} in
+      "Up")
+        echo -e "OK - $outtext | status=${PLUGIN_OK}"
+        exit ${PLUGIN_OK}
+        ;;
+      "Down")
+        echo "WARNING - $outtext | status=${PLUGIN_WARNING}"
+        exit ${PLUGIN_WARNING}
+        ;;
+      *)
+        echo "ERROR - $outtext | status=${PLUGIN_ERROR}"
+        exit ${PLUGIN_ERROR}
+        ;;
+    esac
+    ;;
 
-		;;
-	"downstream")
-		DS_BYTE=$(find_xml_value "${queryResult}" "Newmax_ds")
 
-		check_number "${DS_BYTE}"
+  "downstreamrate")
+    LIST_DS_BYTE=$(find_xml_value "${queryResult}" "Newds_current_bps")
 
-		DOWNSTREAM=$((${DS_BYTE}*8/1000000))
-		MSG="Downstream ${DOWNSTREAM} Mbit/s"
+    curr_ds_byte=$(echo "${LIST_DS_BYTE}" | cut -d ',' -f 1)
 
-		check_lower ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
+    check_number "${curr_ds_byte}"
 
-		;;
-	"upstream")
-		US_BYTE=$(find_xml_value "${queryResult}" "Newmax_us")
+    ds_rate_mbit=$(echo "scale=2; ${curr_ds_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+    MSG="Current Downstream ${ds_rate_mbit} Mbit/s"
 
-		check_number "${US_BYTE}"
+    check_greater ${ds_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_downstream"
 
-		UPSTREAM=$((${US_BYTE}*8/1000000))
-		MSG="Upstream ${UPSTREAM} Mbit/s"
+    ;;
+  "upstreamrate")
+    LIST_US_BYTE=$(find_xml_value "${queryResult}" "Newus_current_bps")
 
-		check_lower ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
+    curr_us_byte=$(echo "${LIST_US_BYTE}" | cut -d ',' -f 1)
 
-		;;
-	"update")
-		UPDATE=$(find_xml_value "${queryResult}" "NewUpgradeAvailable")
+    check_number "${curr_us_byte}"
 
-		if [[ ${UPDATE} == 0 ]]; then
-			echo "OK - No Upgrade available | update_pending=${UPDATE};0;0;0;0"
-			exit ${PLUGIN_OK}
-		fi
+    us_rate_mbit=$(echo "scale=2; ${curr_us_byte}*8/1000000" | bc | sed -r 's/^(-?)\./\10./')
+    MSG="Current Upstream ${us_rate_mbit} Mbit/s"
 
-		echo "CRITICAL - Upgrade available | update_pending=${UPDATE};0;0;0;0"
-		exit ${PLUGIN_CRITICAL}
+    check_greater ${us_rate_mbit} ${WARN} ${CRIT} "${MSG}" "current_upstream"
 
-		;;
-	"uptime")
-		UPTIME=$(find_xml_value "${queryResult}" "NewUpTime")
+    ;;
+  "downstream")
+    DS_BYTE=$(find_xml_value "${queryResult}" "Newmax_ds")
 
-		check_number "${UPTIME}"
+    check_number "${DS_BYTE}"
 
-		days=$(( ${UPTIME} / 86400 ))
-		hours=$(( (${UPTIME} / 3600) - (${days} * 24) ))
-		minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
-		seconds=$(( ${UPTIME} % 60 ))
+    DOWNSTREAM=$((${DS_BYTE}*8/1000000))
+    MSG="Downstream ${DOWNSTREAM} Mbit/s"
 
-		echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}s;0;0;0;0"
+    check_lower ${DOWNSTREAM} ${WARN} ${CRIT} "${MSG}" "downstream_rate"
 
-		exit ${PLUGIN_OK}
+    ;;
+  "upstream")
+    US_BYTE=$(find_xml_value "${queryResult}" "Newmax_us")
 
-		;;
-	"thermometer")
+    check_number "${US_BYTE}"
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current thermometer temperature | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+    UPSTREAM=$((${US_BYTE}*8/1000000))
+    MSG="Upstream ${UPSTREAM} Mbit/s"
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
-			echo "UNKNOWN - Specified device index invalid"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+    check_lower ${UPSTREAM} ${WARN} ${CRIT} "${MSG}" "upstream_rate"
 
-		deviceTempFeature=$(find_xml_value "${queryResult}" "NewTemperatureIsEnabled")
-		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
-		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
-		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
-		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
-		deviceCurrentTemp=$(find_xml_value "${queryResult}" "NewTemperatureCelsius")
+    ;;
+  "update")
+    UPDATE=$(find_xml_value "${queryResult}" "NewUpgradeAvailable")
 
-		currentTemp=$( echo "scale=1; ${deviceCurrentTemp}/10" | bc )
+    if [[ ${UPDATE} == 0 ]]; then
+      echo "OK - No Upgrade available | update_pending=${UPDATE}"
+      exit ${PLUGIN_OK}
+    fi
 
-		case ${devicePresent} in
-		"CONNECTED")
-			if [ "${deviceTempFeature}" != "ENABLED" ]; then
-				echo "UNKNOWN - Temperature is not enabled on this device | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
-				exit ${PLUGIN_UNKNOWN}
-			fi
+    echo "CRITICAL - Upgrade available | update_pending=${UPDATE}"
+    exit ${PLUGIN_CRITICAL}
 
-			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C"
+    ;;
+  "uptime")
+    UPTIME=$(find_xml_value "${queryResult}" "NewUpTime")
 
-			check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "thermometer_current_state=${PLUGIN_OK} thermometer_current_temp"
-			;;
-		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN};0;0;0;0"
-			exit ${PLUGIN_UNKNOWN}
-			;;
-		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_CRITICAL};0;0;0;0"
-			exit ${PLUGIN_CRITICAL}
-			;;
-		esac
-		;;
-	"socketpower")
+    check_number "${UPTIME}"
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current socket status"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+    days=$(( ${UPTIME} / 86400 ))
+    hours=$(( (${UPTIME} / 3600) - (${days} * 24) ))
+    minutes=$(( (${UPTIME} / 60) - (${days} * 1440) - (${hours} * 60) ))
+    seconds=$(( ${UPTIME} % 60 ))
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
-			echo "UNKNOWN - Specified device index invalid"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+    echo "OK - Uptime ${UPTIME} seconds (${days}d ${hours}h ${minutes}m ${seconds}s) | uptime=${UPTIME}"
 
-		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
-		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
-		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
-		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
-		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
-		deviceMultimeterPower=$(find_xml_value "${queryResult}" "NewMultimeterPower")
+    exit ${PLUGIN_OK}
 
-		currentPower=$( echo "scale=2; ${deviceMultimeterPower}/100" | bc )
+    ;;
+  "thermometer")
 
-		case ${devicePresent} in
-		"CONNECTED")
-			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
-				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
-				exit ${PLUGIN_UNKNOWN}
-			fi
+    if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
+      echo "UNKNOWN - Not able to fetch current temperature | thermometer_current_state=${PLUGIN_UNKNOWN}"
+      exit ${PLUGIN_UNKNOWN}
+    fi
 
-			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
+    deviceTempFeature=$(find_xml_value "${queryResult}" "NewTemperatureIsEnabled")
+    deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
+    deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
+    deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
+    devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
+    deviceCurrentTemp=$(find_xml_value "${queryResult}" "NewTemperatureCelsius")
 
-			check_greater ${currentPower} ${WARN} ${CRIT} "${text}" "socket_current_power"
-			;;
-		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
-			exit ${PLUGIN_UNKNOWN}
-			;;
-		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentPower} W"
-			exit ${PLUGIN_CRITICAL}
-			;;
-		esac
-		;;
-	"socketenergy")
+    currentTemp=$( echo "scale=1; ${deviceCurrentTemp}/10" | bc )
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current socket status"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+    case ${devicePresent} in
+    "CONNECTED")
+      if [ "${deviceTempFeature}" != "ENABLED" ]; then
+        echo "UNKNOWN - Temperature is not enabled on this device | thermometer_current_state=${PLUGIN_UNKNOWN}"
+        exit ${PLUGIN_UNKNOWN}
+      fi
 
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
-			echo "UNKNOWN - Specified device index invalid"
-			exit ${PLUGIN_UNKNOWN}
-		fi
+      text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C"
 
-		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
-		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
-		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
-		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
-		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
-		deviceMultimeterEnergy=$(find_xml_value "${queryResult}" "NewMultimeterEnergy")
-
-		currentEnergy=$( echo "scale=2; ${deviceMultimeterEnergy}/1000" | bc )
-
-		case ${devicePresent} in
-		"CONNECTED")
-			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
-				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
-				exit ${PLUGIN_UNKNOWN}
-			fi
-
-			text="${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
-
-			check_greater ${currentEnergy} ${WARN} ${CRIT} "${text}" "socket_total_consumption"
-			;;
-		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
-			exit ${PLUGIN_UNKNOWN}
-			;;
-		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentEnergy} kWh"
-			exit ${PLUGIN_CRITICAL}
-			;;
-		esac
-		;;
-	"socketswitch")
-
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "820" ]; then
-			echo "UNKNOWN - Not able to fetch current socket status"
-			exit ${PLUGIN_UNKNOWN}
-		fi
-
-		if [ "$(find_xml_value "${queryResult}" "errorCode")" = "713" ]; then
-			echo "UNKNOWN - Specified device index invalid"
-			exit ${PLUGIN_UNKNOWN}
-		fi
-
-		deviceMultimeterFeature=$(find_xml_value "${queryResult}" "NewMultimeterIsEnabled")
-		deviceFirmwareVersion=$(find_xml_value "${queryResult}" "NewFirmwareVersion")
-		deviceProductName=$(find_xml_value "${queryResult}" "NewProductName")
-		deviceName=$(find_xml_value "${queryResult}" "NewDeviceName")
-		devicePresent=$(find_xml_value "${queryResult}" "NewPresent")
-		deviceSocketSwitch=$(find_xml_value "${queryResult}" "NewSwitchState")
-
-		case ${devicePresent} in
-		"CONNECTED")
-			if [ "${deviceMultimeterFeature}" != "ENABLED" ]; then
-				echo "UNKNOWN - Device with index ${INDEX} is not a socket"
-				exit ${PLUGIN_UNKNOWN}
-			fi
-
-			interpretOffAsCritical="false"
-
-			if (( $(echo "${WARN} >= 1" | bc -l) )); then
-				interpretOffAsCritical="true"
-			fi
-
-			if (( $(echo "${CRIT} >= 1" | bc -l) )); then
-				interpretOffAsCritical="true"
-			fi
-
-			if [ "${deviceSocketSwitch}" == "OFF" ] && [ "${interpretOffAsCritical}" == "true" ]; then
-				echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
-				exit ${PLUGIN_CRITICAL}
-			fi
-
-			echo "OK - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
-			exit ${PLUGIN_OK}
-			;;
-		"UNKNOWN")
-			echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
-			exit ${PLUGIN_UNKNOWN}
-			;;
-		*)
-			echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} Switch ${deviceSocketSwitch}"
-			exit ${PLUGIN_CRITICAL}
-			;;
-		esac
-		;;
-	*)
-		echo "UNKNOWN - Unknown function"
-		exit ${PLUGIN_UNKNOWN}
-		;;
+      check_lower ${currentTemp} ${WARN} ${CRIT} "${text}" "thermometer_current_state=${PLUGIN_OK} thermometer_current_temp"
+      ;;
+    "UNKNOWN")
+      echo "UNKNOWN - ${deviceProductName} ${deviceFirmwareVersion} -${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_UNKNOWN}"
+      exit ${PLUGIN_UNKNOWN}
+      ;;
+    *)
+      echo "CRITICAL - ${deviceProductName} ${deviceFirmwareVersion} - ${deviceName} ${devicePresent} ${currentTemp} °C | thermometer_current_state=${PLUGIN_CRITICAL}"
+      exit ${PLUGIN_CRITICAL}
+      ;;
+    esac
+    ;;
+  *)
+    echo "UNKNOWN - Unknown function"
+    exit ${PLUGIN_UNKNOWN}
+    ;;
 esac
