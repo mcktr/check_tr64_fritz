@@ -105,6 +105,12 @@ __Functions__
 | Name           | Description                                                                                                                                                     |
 | ---            | ---                                                                                                                                                             |
 | status         | **Optional Index.** Returns the connection state. _Default Index to "pppoe"._                                                                                   |
+| lanlink        | Checks linkstate of LAN Interface (Not yet implemented) 
+                                          |
+| activehots     |  Count active hosts
+                                          |                                          
+| wanlink        | WAN link Information
+                                          |                                          
 | linkuptime     | **Optional Index.** Returns the uptime of the WAN link. _Default Index to "pppoe"._                                                                             |
 | uptime         | Returns the device uptime.                                                                                                                                      |
 | downstream     | Returns the usable downstream rate in MBit/s.                                                                                                                   |
