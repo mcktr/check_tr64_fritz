@@ -1,3 +1,9 @@
+> **Note:**
+>
+> This check plugin is no longer actively maintained.
+> For the motives and alternatives please read the following comment:
+> https://github.com/mcktr/check_tr64_fritz/issues/80
+
 # check_tr64_fritz
 
 #### Table of Contents
