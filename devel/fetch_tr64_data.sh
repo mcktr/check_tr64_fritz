@@ -53,7 +53,7 @@ echo ""
 queryResult=$(curl "https://${HOSTNAME}:${PORT}/upnp/control/${url}" \
 -k \
 -s \
--u ${USERNAME}:${PASSWORD} \
+-u "${USERNAME}:${PASSWORD}" \
 --anyauth \
 -H "Content-Type: text/xml; charset='utf-8'" \
 -H "SOAPACTION: urn:dslforum-org:service:${service}:1#${action}" \
