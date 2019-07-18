@@ -4,7 +4,7 @@ HOSTNAME="fritz.box"
 PORT="49443"
 USERNAME="dslf-config"
 
-while getopts h:p:u:P:U:s:a:x OPTNAME; do
+while getopts h:p:u:P:U:s:a:x: OPTNAME; do
   case "${OPTNAME}" in
   h)
     HOSTNAME="${OPTARG}"
@@ -28,10 +28,10 @@ while getopts h:p:u:P:U:s:a:x OPTNAME; do
     action="${OPTARG}"
     ;;
   x)
-    xmlVar="${xmlVar}"
+    xmlVar="${OPTARG}"
     ;;
   *)
-    echo "fetch_tr64_data.sh -h <HOST> -p <PORT> -u <USER> -P <PASSWORD> -U <URL> -s <SERVICE> -a <ACTION> -x <INDEX>"
+    echo "fetch_tr64_data.sh -h <HOST> -p <PORT> -u <USER> -P <PASSWORD> -U <URL> -s <SERVICE> -a <ACTION> -x <xmlVar>"
     exit 0
     ;;
   esac
